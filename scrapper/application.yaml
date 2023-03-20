@@ -1,2 +1,6 @@
 app:
   test: "Benedict Cumberbatch"
+
+springdoc:
+  swagger-ui:
+    path: "/swagger-ui"
