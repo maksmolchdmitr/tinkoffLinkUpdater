@@ -1,5 +1,8 @@
 app:
   test: "Ryan Gosling"
+  botConfig:
+    name: "TinkoffLinkUpdaterBot"
+    token: ${BOT_TOKEN}
 
 springdoc:
   swagger-ui:
