@@ -33,34 +33,52 @@ public class MyTgBot extends TelegramLongPollingBot{
             long chatId = update.message().chat().id();
             bot.execute(new SendChatAction(chatId, ChatAction.typing));
             switch (update.message().text()){
-                case "/start" -> sendMessage(chatId, "You was registered!");
-                case "/help" -> sendMessage(chatId, HELP_MESSAGE);
-                case "/track" -> bot.execute(new SendMessage(chatId, NEW_LINK_PRINT_COMMAND)
-                        .replyMarkup(new ForceReply(true)));
-                case "/untrack" -> bot.execute(new SendMessage(chatId, LINK_REMOVE_COMMAND)
-                        .replyMarkup(new ForceReply(true))
-                );
-                case "/list" -> bot.execute(
-                        new SendMessage(chatId, "*Links:*\n"
-                                +links.stream()
-                                .map(s -> "\"`"+s+"`\"")
-                                .reduce((s, s2) -> s+"\n"+s2)
-                                .orElse("There is not links!"))
-                                .disableWebPagePreview(true)
-                                .parseMode(ParseMode.Markdown)
-                );
+                case "/start" -> handleStart(chatId);
+                case "/help" -> handleHelp(chatId);
+                case "/track" -> handleTrack(chatId);
+                case "/untrack" -> handleUntrack(chatId);
+                case "/list" -> handleList(chatId);
                 default -> {
                     if(update.message().replyToMessage()!=null){
                         handleRepliedMessage(update, chatId);
                     }else {
                         sendMessage(chatId, "Command was not found!");
-                        sendMessage(chatId, HELP_MESSAGE);
+                        handleHelp(chatId);
                     }
                 }
             }
-        } else {
-            System.out.println("Uncaught update = "+update);
         }
+    }
+
+    private void handleList(long chatId) {
+        bot.execute(
+                new SendMessage(chatId, "*Links:*\n"
+                        +links.stream()
+                        .map(s -> "\"`"+s+"`\"")
+                        .reduce((s, s2) -> s+"\n"+s2)
+                        .orElse("There is not links!"))
+                        .disableWebPagePreview(true)
+                        .parseMode(ParseMode.Markdown)
+        );
+    }
+
+    private void handleUntrack(long chatId) {
+        bot.execute(new SendMessage(chatId, LINK_REMOVE_COMMAND)
+                .replyMarkup(new ForceReply(true))
+        );
+    }
+
+    private void handleTrack(long chatId) {
+        bot.execute(new SendMessage(chatId, NEW_LINK_PRINT_COMMAND)
+                .replyMarkup(new ForceReply(true)));
+    }
+
+    private void handleHelp(long chatId) {
+        sendMessage(chatId, HELP_MESSAGE);
+    }
+
+    private void handleStart(long chatId) {
+        sendMessage(chatId, "You was registered!");
     }
 
     private void handleRepliedMessage(Update update, long chatId) {
