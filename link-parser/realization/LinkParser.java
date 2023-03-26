@@ -2,7 +2,7 @@ package realization;
 
 import java.net.URL;
 
-public interface LinkParser {
+interface LinkParser{
     boolean canParse(URL url);
-    void parse(URL url);
+    ParsedData parse(URL url);
 }
