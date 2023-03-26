@@ -50,7 +50,7 @@ public class MyTgBot extends TelegramLongPollingBot{
         }
     }
 
-    private void handleList(long chatId) {
+    protected void handleList(long chatId) {
         bot.execute(
                 new SendMessage(chatId, "*Links:*\n"
                         +links.stream()
@@ -62,26 +62,26 @@ public class MyTgBot extends TelegramLongPollingBot{
         );
     }
 
-    private void handleUntrack(long chatId) {
+    protected void handleUntrack(long chatId) {
         bot.execute(new SendMessage(chatId, LINK_REMOVE_COMMAND)
                 .replyMarkup(new ForceReply(true))
         );
     }
 
-    private void handleTrack(long chatId) {
+    protected void handleTrack(long chatId) {
         bot.execute(new SendMessage(chatId, NEW_LINK_PRINT_COMMAND)
                 .replyMarkup(new ForceReply(true)));
     }
 
-    private void handleHelp(long chatId) {
+    protected void handleHelp(long chatId) {
         sendMessage(chatId, HELP_MESSAGE);
     }
 
-    private void handleStart(long chatId) {
+    protected void handleStart(long chatId) {
         sendMessage(chatId, "You was registered!");
     }
 
-    private void handleRepliedMessage(Update update, long chatId) {
+    protected void handleRepliedMessage(Update update, long chatId) {
         switch (update.message().replyToMessage().text()){
             case NEW_LINK_PRINT_COMMAND -> {
                 links.add(update.message().text());
