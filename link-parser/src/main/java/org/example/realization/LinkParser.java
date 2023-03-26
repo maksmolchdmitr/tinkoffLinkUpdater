@@ -1,4 +1,4 @@
-package realization;
+package org.example.realization;
 
 import java.net.URL;
 
