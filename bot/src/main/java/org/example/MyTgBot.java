@@ -32,21 +32,27 @@ public class MyTgBot extends TelegramLongPollingBot{
         if(update.message()!=null&&update.message().text()!=null){
             long chatId = update.message().chat().id();
             bot.execute(new SendChatAction(chatId, ChatAction.typing));
-            switch (update.message().text()){
-                case "/start" -> handleStart(chatId);
-                case "/help" -> handleHelp(chatId);
-                case "/track" -> handleTrack(chatId);
-                case "/untrack" -> handleUntrack(chatId);
-                case "/list" -> handleList(chatId);
-                default -> {
-                    if(update.message().replyToMessage()!=null){
-                        handleRepliedMessage(update, chatId);
-                    }else {
-                        sendMessage(chatId, "Command was not found!");
-                        handleHelp(chatId);
-                    }
-                }
-            }
+            handleUpdateMessageTextCommand(update, chatId);
+        }
+    }
+
+    protected void handleUpdateMessageTextCommand(Update update, long chatId) {
+        switch (update.message().text()){
+            case "/start" -> handleStart(chatId);
+            case "/help" -> sendHelpText(chatId);
+            case "/track" -> handleTrack(chatId);
+            case "/untrack" -> handleUntrack(chatId);
+            case "/list" -> handleList(chatId);
+            default -> handleUnknownCommand(update, chatId);
+        }
+    }
+
+    protected void handleUnknownCommand(Update update, long chatId) {
+        if(update.message().replyToMessage()!=null){
+            handleRepliedMessage(update, chatId);
+        }else {
+            sendMessage(chatId, "Command was not found!");
+            sendHelpText(chatId);
         }
     }
 
@@ -73,7 +79,7 @@ public class MyTgBot extends TelegramLongPollingBot{
                 .replyMarkup(new ForceReply(true)));
     }
 
-    protected void handleHelp(long chatId) {
+    protected void sendHelpText(long chatId) {
         sendMessage(chatId, HELP_MESSAGE);
     }
 

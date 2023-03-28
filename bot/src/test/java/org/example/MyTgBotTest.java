@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.SendResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
@@ -43,9 +44,8 @@ class MyTgBotTest {
         //given
         final String text = "/list";
         when(message.text()).thenReturn(text);
-        //when
         final String emptyListResponseText = "*Links:*\n" + "There is not links!";
-        final ArgumentMatcher<BaseRequest> emptyListSendMessageTextMatcher =
+        final ArgumentMatcher<BaseRequest<SendMessage, SendResponse>> emptyListSendMessageTextMatcher =
                 baseRequest -> {
                     if(baseRequest.getParameters()!=null) {
                         if(baseRequest.getParameters().containsKey("text")) {
@@ -54,12 +54,13 @@ class MyTgBotTest {
                     }
                     return false;
                 };
+        //when
         myTgBot.handleUpdate(update);
         //then
         assertAll(
                 () -> verify(myTgBot).handleUpdate(update),
+                () -> verify(myTgBot).handleUpdateMessageTextCommand(update, chatId),
                 () -> verify(myTgBot).handleList(chatId),
-                () -> verify(myTgBot.bot).execute(any(SendMessage.class)),
                 () -> verify(myTgBot.bot).execute(argThat(emptyListSendMessageTextMatcher))
         );
     }
@@ -70,9 +71,8 @@ class MyTgBotTest {
         final String text = "/list";
         when(message.text()).thenReturn(text);
         myTgBot.links = List.of("https://stackoverflow.com/questions/14292863/how-to-mock-a-final-class-with-mockito");
-        //when
         final String notEmptyListTextResponse = "*Links:*\n"+"\"`https://stackoverflow.com/questions/14292863/how-to-mock-a-final-class-with-mockito`\"";
-        final ArgumentMatcher<BaseRequest> notEmptyListSendMessageTextMatcher =
+        final ArgumentMatcher<BaseRequest<SendMessage, SendResponse>> notEmptyListSendMessageTextMatcher =
                 baseRequest -> {
                     if(baseRequest.getParameters()!=null) {
                         if(baseRequest.getParameters().containsKey("text")) {
@@ -81,12 +81,13 @@ class MyTgBotTest {
                     }
                     return false;
                 };
+        //when
         myTgBot.handleUpdate(update);
         //then
         assertAll(
                 () -> verify(myTgBot).handleUpdate(update),
+                () -> verify(myTgBot).handleUpdateMessageTextCommand(update, chatId),
                 () -> verify(myTgBot).handleList(chatId),
-                () -> verify(myTgBot.bot).execute(any(SendMessage.class)),
                 () -> verify(myTgBot.bot).execute(argThat(notEmptyListSendMessageTextMatcher))
         );
     }
@@ -98,12 +99,11 @@ class MyTgBotTest {
         when(message.text()).thenReturn(text);
         myTgBot.links = List.of("https://stackoverflow.com/questions/14292863/how-to-mock-a-final-class-with-mockito",
                 "https://github.com/maksmolchdmitr/tinkoffLinkUpdater");
-        //when
         final String notEmptyListTextResponse = """
                 *Links:*
                 "`https://stackoverflow.com/questions/14292863/how-to-mock-a-final-class-with-mockito`"
                 "`https://github.com/maksmolchdmitr/tinkoffLinkUpdater`\"""";
-        final ArgumentMatcher<BaseRequest> notEmptyListSendMessageTextMatcher =
+        final ArgumentMatcher<BaseRequest<SendMessage, SendResponse>> notEmptyListSendMessageTextMatcher =
                 baseRequest -> {
                     if(baseRequest.getParameters()!=null) {
                         if(baseRequest.getParameters().containsKey("text")) {
@@ -112,12 +112,13 @@ class MyTgBotTest {
                     }
                     return false;
                 };
+        //when
         myTgBot.handleUpdate(update);
         //then
         assertAll(
                 () -> verify(myTgBot).handleUpdate(update),
+                () -> verify(myTgBot).handleUpdateMessageTextCommand(update, chatId),
                 () -> verify(myTgBot).handleList(chatId),
-                () -> verify(myTgBot.bot).execute(any(SendMessage.class)),
                 () -> verify(myTgBot.bot).execute(argThat(notEmptyListSendMessageTextMatcher))
         );
     }
