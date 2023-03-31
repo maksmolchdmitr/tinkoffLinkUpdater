@@ -17,7 +17,7 @@ import java.util.*;
 public class LinksController {
     private final Map<Long, Set<String>> userLinks = new HashMap<>();
     @GetMapping
-    public ListLinksResponse sendTrackedLinks(@RequestParam("Tg-Chat-Id") Long tgChatId){
+    public ListLinksResponse sendTrackedLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId){
         if(!userLinks.containsKey(tgChatId)){
             userLinks.put(tgChatId, new HashSet<>());
         }
@@ -28,7 +28,7 @@ public class LinksController {
     }
 
     @PostMapping
-    public void addLinkTracking(@RequestParam("Tg-Chat-Id") Long tgChatId, @RequestBody AddLinkRequest addLinkRequest){
+    public void addLinkTracking(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody AddLinkRequest addLinkRequest){
         if(!userLinks.containsKey(tgChatId)){
             userLinks.put(tgChatId, new HashSet<>());
         }
@@ -39,7 +39,7 @@ public class LinksController {
     }
 
     @DeleteMapping
-    public LinkResponse deleteLinkTracking(@RequestParam("Tg-Chat-Id") Long tgChatId, @RequestBody RemoveLinkRequest removeLinkRequest){
+    public LinkResponse deleteLinkTracking(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody RemoveLinkRequest removeLinkRequest){
         if(!userLinks.containsKey(tgChatId)){
             userLinks.put(tgChatId, new HashSet<>());
         }
