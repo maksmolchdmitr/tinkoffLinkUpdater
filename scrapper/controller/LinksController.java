@@ -10,38 +10,43 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/links")
 public class LinksController {
-    private final Map<String, Long> links = new HashMap<>();
-    private long counter = 0L;
+    private final Map<Long, Set<String>> userLinks = new HashMap<>();
     @GetMapping
-    public ListLinksResponse sendTrackedLinks(){
+    public ListLinksResponse sendTrackedLinks(@RequestParam("Tg-Chat-Id") Long tgChatId){
+        if(!userLinks.containsKey(tgChatId)){
+            userLinks.put(tgChatId, new HashSet<>());
+        }
         return new ListLinksResponse(
-                links.entrySet().stream().map(e -> new LinkResponse(e.getValue(), e.getKey())).toList(),
-                links.size()
+                userLinks.get(tgChatId).stream().map(s -> new LinkResponse(0L, s)).toList(),
+                userLinks.get(tgChatId).size()
         );
     }
 
     @PostMapping
-    public void addLinkTracking(@RequestBody AddLinkRequest addLinkRequest){
-        if(links.containsKey(addLinkRequest.link())){
+    public void addLinkTracking(@RequestParam("Tg-Chat-Id") Long tgChatId, @RequestBody AddLinkRequest addLinkRequest){
+        if(!userLinks.containsKey(tgChatId)){
+            userLinks.put(tgChatId, new HashSet<>());
+        }
+        if(userLinks.get(tgChatId).contains(addLinkRequest.link())){
             throw new IllegalArgumentException("This link with url "+addLinkRequest.link()+" already exist!");
         }
-        links.put(addLinkRequest.link(), counter++);
+        userLinks.get(tgChatId).add(addLinkRequest.link());
     }
 
     @DeleteMapping
-    public LinkResponse deleteLinkTracking(@RequestBody RemoveLinkRequest removeLinkRequest){
-        Long id = links.remove(removeLinkRequest.link());
-        if(id==null){
+    public LinkResponse deleteLinkTracking(@RequestParam("Tg-Chat-Id") Long tgChatId, @RequestBody RemoveLinkRequest removeLinkRequest){
+        if(!userLinks.containsKey(tgChatId)){
+            userLinks.put(tgChatId, new HashSet<>());
+        }
+        if(!userLinks.get(tgChatId).remove(removeLinkRequest.link())){
             throw new IllegalArgumentException("Link with url "+removeLinkRequest.link()+" doesn't exist!");
         }
-        return new LinkResponse(id, removeLinkRequest.link());
+        return new LinkResponse(0L, removeLinkRequest.link());
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
