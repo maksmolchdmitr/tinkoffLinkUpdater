@@ -1,2 +1,8 @@
 app:
   test: "Benedict Cumberbatch"
+  scheduler:
+    interval: 5000
+
+springdoc:
+  swagger-ui:
+    path: "/swagger-ui"
