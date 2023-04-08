@@ -1,3 +1,5 @@
+package org.example;
+
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
