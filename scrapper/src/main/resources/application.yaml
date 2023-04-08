@@ -6,3 +6,13 @@ app:
 springdoc:
   swagger-ui:
     path: "/swagger-ui"
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/scrapper
+    username: postgres
+    password: postgres
+  liquibase:
+    enabled: true
+    change-log: classpath:migrations/master.xml
