@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest
 class LinkDaoTest extends IntegrationEnvironment {
@@ -21,13 +22,15 @@ class LinkDaoTest extends IntegrationEnvironment {
     @Transactional
     @Rollback
     void add() {
-        linkDao.add(new Link(0, "https://github.com/maksmolchdmitr/EmemeBot",
-                new Timestamp(0)));
+        Link newLink = linkDao.add(new Link("https://github.com/maksmolchdmitr/EmemeBot"));
+        assertEquals(newLink.id(), 0);
+        assertNull(newLink.lastUpdate());
+        assertEquals(newLink.url(), "https://github.com/maksmolchdmitr/EmemeBot");
         linkDao.findAll()
                 .forEach(link ->{
                     assertEquals(link.url(), "https://github.com/maksmolchdmitr/EmemeBot");
                     assertEquals(link.id(), 0);
-                    assertEquals(link.lastUpdate(), new Timestamp(0));
+                    assertNull(link.lastUpdate());
                 });
     }
 
@@ -35,9 +38,10 @@ class LinkDaoTest extends IntegrationEnvironment {
     @Transactional
     @Rollback
     void remove() {
-        linkDao.add(new Link(0, "https://github.com/maksmolchdmitr/EmemeBot",
+        Link newLink = linkDao.add(new Link(0, "https://github.com/maksmolchdmitr/EmemeBot",
                 new Timestamp(0)));
-        linkDao.remove(0);
+        Link removedLink = linkDao.remove(0);
+        assertEquals(newLink, removedLink);
         linkDao.findAll()
                 .forEach(link ->{
                     throw new RuntimeException("Link table is not empty but it actually must be empty!");

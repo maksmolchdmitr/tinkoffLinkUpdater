@@ -18,17 +18,22 @@ class UserDaoTest extends IntegrationEnvironment {
     @Transactional
     @Rollback
     void add() {
-        userDao.add(new User(0, "Maks"));
+        User newUser = userDao.add(new User(0, "Maks"));
         userDao.findAll()
-                .forEach(user -> assertEquals(user.username(), "Maks"));
+                .forEach(user -> {
+                    assertEquals(newUser, user);
+                    assertEquals(user.chatId(), 0);
+                    assertEquals(user.username(), "Maks");
+                });
     }
 
     @Test
     @Transactional
     @Rollback
     void remove() {
-        userDao.add(new User(0, "Maks"));
-        userDao.remove(0);
+        User newUser = userDao.add(new User(0, "Maks"));
+        User removedUser = userDao.remove(0);
+        assertEquals(newUser, removedUser);
         userDao.findAll()
                 .forEach(user -> {
                     throw  new RuntimeException("User table is not empty but it actually must be empty!");
