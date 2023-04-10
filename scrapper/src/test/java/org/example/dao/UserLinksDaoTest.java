@@ -132,4 +132,12 @@ class UserLinksDaoTest extends IntegrationEnvironment {
         userLinksDao.removeWithLink(new UserLinks(0, "link1"));
         assertTrue(linkDao.findAll().isEmpty());
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    void addLinkWithoutRegisteredUser(){
+        linkDao.add(new Link("link1"));
+        userLinksDao.add(new UserLinks(0, "link1"));
+    }
 }

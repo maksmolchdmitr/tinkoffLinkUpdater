@@ -32,13 +32,16 @@ public class LinksController {
     }
 
     @PostMapping
-    public void addLinkTracking(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody AddLinkRequest addLinkRequest){
-        userLinksServiceJdbc.add(tgChatId, addLinkRequest.link());
+    public LinkResponse addLinkTracking(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody AddLinkRequest addLinkRequest){
+        UserLinks userLinks = userLinksServiceJdbc.add(tgChatId, addLinkRequest.link());
+        if(userLinks==null) return null;
+        return new LinkResponse(userLinks.userChatId(), userLinks.linkUrl());
     }
 
     @DeleteMapping
     public LinkResponse deleteLinkTracking(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody RemoveLinkRequest removeLinkRequest){
         UserLinks removedUserLinks = userLinksServiceJdbc.remove(tgChatId, removeLinkRequest.link());
+        if(removedUserLinks==null) return null;
         return new LinkResponse(removedUserLinks.userChatId(), removedUserLinks.linkUrl());
     }
 

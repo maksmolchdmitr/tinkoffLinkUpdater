@@ -3,22 +3,26 @@ package org.example.controller;
 import org.example.dto.UpdateRequest;
 import org.example.exceptionHandler.ErrorMessage;
 import jakarta.validation.Valid;
+import org.example.service.UpdateRequestHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 @RestController
 @RequestMapping("/updates")
 public class UpdateController {
-    private final List<UpdateRequest> updates = new ArrayList<>();
+    private final UpdateRequestHandler updateRequestHandler;
+
+    public UpdateController(UpdateRequestHandler updateRequestHandler) {
+        this.updateRequestHandler = updateRequestHandler;
+    }
+
     @PostMapping
     public void getUpdates(@RequestBody @Valid UpdateRequest updateRequest) {
-        updates.add(updateRequest);
+        updateRequestHandler.handleUpdateRequest(updateRequest);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

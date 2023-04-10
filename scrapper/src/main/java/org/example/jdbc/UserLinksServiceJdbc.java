@@ -5,6 +5,7 @@ import org.example.dao.UserLinksDao;
 import org.example.model.Link;
 import org.example.model.UserLinks;
 import org.example.service.UserLinksService;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +25,17 @@ public class UserLinksServiceJdbc implements UserLinksService {
     @Transactional
     public UserLinks add(long chatId, String url) {
         Link newLink = linkDao.add(new Link(url));
-        return userLinksDao.add(new UserLinks(chatId, newLink.url()));
+        return userLinksDao.add(new UserLinks(chatId, newLink.url())).orElse(null);
     }
 
     @Override
     @Transactional
     public UserLinks remove(long chatId, String url) {
-        return userLinksDao.removeWithLink(new UserLinks(chatId, url));
+        try{
+            return userLinksDao.removeWithLink(new UserLinks(chatId, url));
+        }catch (EmptyResultDataAccessException ignored){
+            return null;
+        }
     }
 
     @Override

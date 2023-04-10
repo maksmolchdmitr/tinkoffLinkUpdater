@@ -18,8 +18,13 @@ public class UserDao {
     private final RowMapper<User> userRowMapper = (rs, rowNum) -> new User(rs.getLong("chat_id"), rs.getString("username"));
 
     public User add(User user){
-        return jdbcTemplate.queryForObject("insert into user_table(chat_id, username) values(:chatId, :username) returning *",
-                new BeanPropertySqlParameterSource(user),
+        jdbcTemplate.update("""
+                insert into user_table(chat_id, username)
+                values(:chatId, :username)
+                on conflict do nothing
+                """, new BeanPropertySqlParameterSource(user));
+        return jdbcTemplate.queryForObject("select * from user_table where chat_id=:chatId",
+                Map.of("chatId", user.chatId()),
                 userRowMapper);
     }
     public User remove(long chatId){
