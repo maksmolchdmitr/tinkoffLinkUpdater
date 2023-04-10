@@ -44,7 +44,7 @@ class UserDaoTest extends IntegrationEnvironment {
     @Transactional
     @Rollback
     void findAll() {
-        userDao.add(new User(0, "Maks"));
+        userDao.add(new User(0));
         userDao.add(new User(1, "Kurita"));
         userDao.add(new User(2, "Lavandush"));
         int userCount = 0;

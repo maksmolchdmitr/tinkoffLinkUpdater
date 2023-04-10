@@ -18,20 +18,52 @@ public class UserLinksDao {
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final RowMapper<UserLinks> userLinksRowMapper = new DataClassRowMapper<>(UserLinks.class);
     public UserLinks add(UserLinks userLinks){
-        return jdbcTemplate.queryForObject("insert into user_links_table(user_chat_id, link_id) values(:userChatId, :linkId) returning *",
+        return jdbcTemplate.queryForObject("insert into user_links_table(user_chat_id, link_url) values(:userChatId, :linkUrl) returning *",
                 new BeanPropertySqlParameterSource(userLinks),
                 userLinksRowMapper);
     }
+    public UserLinks remove(UserLinks userLinks){
+        return jdbcTemplate.queryForObject("delete from user_links_table where user_chat_id=:userChatId and link_url=:linkUrl returning *",
+                new BeanPropertySqlParameterSource(userLinks),
+                userLinksRowMapper);
+    }
+    public UserLinks removeWithLink(UserLinks userLinks){
+        UserLinks res = jdbcTemplate.queryForObject("""
+                select * from user_links_table
+                where user_chat_id=:userChatId
+                and link_url=:linkUrl
+                """, new BeanPropertySqlParameterSource(userLinks),
+                userLinksRowMapper);
+        jdbcTemplate.update("""
+                delete from link_table where url=:url
+                and (
+                    select count(*) from user_links_table
+                    where link_url=:url
+                )=1
+                """, Map.of("url", userLinks.linkUrl()));
+        jdbcTemplate.update("""
+                delete from user_links_table
+                where user_chat_id=:userChatId
+                and link_url=:linkUrl
+                """, new BeanPropertySqlParameterSource(userLinks));
+        return res;
+    }
     public void removeByUserChatId(long userChatId){
-        jdbcTemplate.update("delete from user_links_table where user_chat_id=:userChatId",
+        jdbcTemplate.update("""
+                delete from user_links_table where user_chat_id=:userChatId
+                """,
                 Map.of("userChatId", userChatId));
     }
 
-    public void removeByLinkId(long linkId){
-        jdbcTemplate.update("delete from user_links_table where link_id=:linkId",
-                Map.of("linkId", linkId));
+    public void removeByLinkUrl(String url){
+        jdbcTemplate.update("delete from user_links_table where link_url=:url",
+                Map.of("url", url));
     }
     public List<UserLinks> findAll(){
         return jdbcTemplate.query("select * from user_links_table", userLinksRowMapper);
+    }
+    public List<UserLinks> findByChatId(long chatId){
+        return jdbcTemplate.query("select * from user_links_table where user_chat_id=:chatId",
+                Map.of("chatId", chatId), userLinksRowMapper);
     }
 }

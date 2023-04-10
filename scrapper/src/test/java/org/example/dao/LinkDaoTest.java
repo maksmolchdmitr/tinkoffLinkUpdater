@@ -2,6 +2,8 @@ package org.example.dao;
 
 import org.example.IntegrationEnvironment;
 import org.example.model.Link;
+import org.example.model.User;
+import org.example.model.UserLinks;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,26 +12,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class LinkDaoTest extends IntegrationEnvironment {
     @Autowired
     private LinkDao linkDao;
+    @Autowired
+    private UserLinksDao userLinksDao;
+    @Autowired
+    private UserDao userDao;
 
     @Test
     @Transactional
     @Rollback
     void add() {
         Link newLink = linkDao.add(new Link("https://github.com/maksmolchdmitr/EmemeBot"));
-        assertEquals(newLink.id(), 0);
+        linkDao.add(new Link("https://github.com/maksmolchdmitr/EmemeBot"));
         assertNull(newLink.lastUpdate());
         assertEquals(newLink.url(), "https://github.com/maksmolchdmitr/EmemeBot");
         linkDao.findAll()
                 .forEach(link ->{
                     assertEquals(link.url(), "https://github.com/maksmolchdmitr/EmemeBot");
-                    assertEquals(link.id(), 0);
                     assertNull(link.lastUpdate());
                 });
     }
@@ -38,10 +42,9 @@ class LinkDaoTest extends IntegrationEnvironment {
     @Transactional
     @Rollback
     void remove() {
-        Link newLink = linkDao.add(new Link(0, "https://github.com/maksmolchdmitr/EmemeBot",
+        linkDao.add(new Link("https://github.com/maksmolchdmitr/EmemeBot",
                 new Timestamp(0)));
-        Link removedLink = linkDao.remove(0);
-        assertEquals(newLink, removedLink);
+        linkDao.remove("https://github.com/maksmolchdmitr/EmemeBot");
         linkDao.findAll()
                 .forEach(link ->{
                     throw new RuntimeException("Link table is not empty but it actually must be empty!");
@@ -52,16 +55,64 @@ class LinkDaoTest extends IntegrationEnvironment {
     @Transactional
     @Rollback
     void findAll() {
-        linkDao.add(new Link(0, "https://github.com/maksmolchdmitr/EmemeBot",
+        linkDao.add(new Link("https://github.com/maksmolchdmitr/EmemeBot",
                 new Timestamp(0)));
-        linkDao.add(new Link(1, "https://github.com/maksmolchdmitr/tinkoffLinkUpdater",
+        linkDao.add(new Link("https://github.com/maksmolchdmitr/tinkoffLinkUpdater",
                 new Timestamp(0)));
-        linkDao.add(new Link(2, "https://stackoverflow.com/questions/43569781/unable-to-start-docker-service-with-error-failed-to-start-docker-service-unit",
+        linkDao.add(new Link("https://stackoverflow.com/questions/43569781/unable-to-start-docker-service-with-error-failed-to-start-docker-service-unit",
                 new Timestamp(0)));
         int countLinks = 0;
         for(Link ignored :linkDao.findAll()){
             countLinks++;
         }
         assertEquals(countLinks, 3);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void removeIfWithOneUser(){
+        userDao.add(new User(0));
+        userDao.add(new User(1));
+        userDao.add(new User(2));
+        linkDao.add(new Link("link"));
+        linkDao.add(new Link("link2"));
+        userLinksDao.add(new UserLinks(0, "link"));
+        userLinksDao.add(new UserLinks(0, "link2"));
+        userLinksDao.add(new UserLinks(1, "link2"));
+        userLinksDao.add(new UserLinks(2, "link2"));
+        linkDao.removeIfWithOneUser("link");
+        assertEquals(linkDao.findAll().size(), 1);
+    }
+    @Test
+    @Transactional
+    @Rollback
+    void removeIfWithTwoUser(){
+        userDao.add(new User(0));
+        userDao.add(new User(1));
+        linkDao.add(new Link("link"));
+        userLinksDao.add(new UserLinks(0, "link"));
+        userLinksDao.add(new UserLinks(1, "link"));
+        linkDao.removeIfWithOneUser("link");
+        assertEquals(linkDao.findAll().size(), 1);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void removeIfWithOneUserThree(){
+        userDao.add(new User(0));
+        userDao.add(new User(1));
+        userDao.add(new User(2));
+        linkDao.add(new Link("link1"));
+        linkDao.add(new Link("link2"));
+        linkDao.add(new Link("link3"));
+        userLinksDao.add(new UserLinks(0, "link1"));
+        userLinksDao.add(new UserLinks(1, "link1"));
+        userLinksDao.add(new UserLinks(2, "link1"));
+        userLinksDao.add(new UserLinks(0, "link2"));
+        userLinksDao.add(new UserLinks(0, "link3"));
+        linkDao.removeIfWithOneUser("link3");
+        assertTrue(linkDao.findByUrl("link3").isEmpty());
     }
 }

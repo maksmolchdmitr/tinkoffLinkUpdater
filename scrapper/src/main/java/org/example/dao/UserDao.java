@@ -1,7 +1,6 @@
 package org.example.dao;
 
 import org.example.model.User;
-import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -16,7 +15,8 @@ public class UserDao {
     public UserDao(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-    private final RowMapper<User> userRowMapper = new DataClassRowMapper<>(User.class);
+    private final RowMapper<User> userRowMapper = (rs, rowNum) -> new User(rs.getLong("chat_id"), rs.getString("username"));
+
     public User add(User user){
         return jdbcTemplate.queryForObject("insert into user_table(chat_id, username) values(:chatId, :username) returning *",
                 new BeanPropertySqlParameterSource(user),

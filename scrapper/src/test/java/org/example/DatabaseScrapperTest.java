@@ -33,10 +33,10 @@ public class DatabaseScrapperTest extends IntegrationEnvironment {
         //add User in table
         userDao.add(new User(0, "Maks"));
         //add Link in table
-        linkDao.add(new Link(0, "https://github.com/maksmolchdmitr/EmemeBot",
+        linkDao.add(new Link("https://github.com/maksmolchdmitr/EmemeBot",
                 new Timestamp(0)));
         //add link for user
-        userLinksDao.add(new UserLinks(0, 0));
+        userLinksDao.add(new UserLinks(0, "https://github.com/maksmolchdmitr/EmemeBot"));
 
         userDao.findAll()
                 .forEach(user -> assertEquals(user.username(), "Maks"));
@@ -45,7 +45,7 @@ public class DatabaseScrapperTest extends IntegrationEnvironment {
                         "https://github.com/maksmolchdmitr/EmemeBot"));
         userLinksDao.findAll().
                 forEach(userLinks ->{
-                    assertEquals(userLinks.linkId(), 0);
+                    assertEquals(userLinks.linkUrl(), "https://github.com/maksmolchdmitr/EmemeBot");
                     assertEquals(userLinks.userChatId(), 0);
                 });
     }

@@ -1,3 +1,3 @@
 package org.example.model;
 
-public record UserLinks(long userChatId, long linkId) {}
+public record UserLinks(long userChatId, String linkUrl) {}
