@@ -1,5 +1,6 @@
 package org.example.configuration;
 
+import org.example.service.BotHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -31,5 +32,16 @@ public class ClientConfiguration {
                 ))
                 .build();
         return httpServiceProxyFactory.createClient(StackoverflowClient.class);
+    }
+    @Bean
+    BotHttpClient botHttpClient(){
+        HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builder()
+                .clientAdapter(WebClientAdapter.forClient(
+                        WebClient.builder()
+                                .baseUrl("localhost://8081")
+                                .build()
+                ))
+                .build();
+        return httpServiceProxyFactory.createClient(BotHttpClient.class);
     }
 }
