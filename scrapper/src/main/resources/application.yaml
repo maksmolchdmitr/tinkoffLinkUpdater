@@ -15,4 +15,3 @@ spring:
     password: postgres
   liquibase:
     enabled: true
-    change-log: classpath:migrations/master.xml
