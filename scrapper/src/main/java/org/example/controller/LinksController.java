@@ -5,6 +5,8 @@ import org.example.dto.LinkResponse;
 import org.example.dto.ListLinksResponse;
 import org.example.dto.RemoveLinkRequest;
 import org.example.exceptionHandler.ErrorMessage;
+import org.example.jdbc.UserLinksServiceJdbc;
+import org.example.model.UserLinks;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,38 +17,29 @@ import java.util.*;
 @RestController
 @RequestMapping("/links")
 public class LinksController {
-    private final Map<Long, Set<String>> userLinks = new HashMap<>();
+    private final UserLinksServiceJdbc userLinksServiceJdbc;
+
+    public LinksController(UserLinksServiceJdbc userLinksServiceJdbc) {
+        this.userLinksServiceJdbc = userLinksServiceJdbc;
+    }
+
     @GetMapping
     public ListLinksResponse sendTrackedLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId){
-        if(!userLinks.containsKey(tgChatId)){
-            userLinks.put(tgChatId, new HashSet<>());
-        }
-        return new ListLinksResponse(
-                userLinks.get(tgChatId).stream().map(s -> new LinkResponse(0L, s)).toList(),
-                userLinks.get(tgChatId).size()
-        );
+        List<LinkResponse> res = userLinksServiceJdbc.findByChatId(tgChatId).stream()
+                .map(userLinks -> new LinkResponse(userLinks.userChatId(), userLinks.linkUrl()))
+                .toList();
+        return new ListLinksResponse(res, res.size());
     }
 
     @PostMapping
     public void addLinkTracking(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody AddLinkRequest addLinkRequest){
-        if(!userLinks.containsKey(tgChatId)){
-            userLinks.put(tgChatId, new HashSet<>());
-        }
-        if(userLinks.get(tgChatId).contains(addLinkRequest.link())){
-            throw new IllegalArgumentException("This link with url "+addLinkRequest.link()+" already exist!");
-        }
-        userLinks.get(tgChatId).add(addLinkRequest.link());
+        userLinksServiceJdbc.add(tgChatId, addLinkRequest.link());
     }
 
     @DeleteMapping
     public LinkResponse deleteLinkTracking(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody RemoveLinkRequest removeLinkRequest){
-        if(!userLinks.containsKey(tgChatId)){
-            userLinks.put(tgChatId, new HashSet<>());
-        }
-        if(!userLinks.get(tgChatId).remove(removeLinkRequest.link())){
-            throw new IllegalArgumentException("Link with url "+removeLinkRequest.link()+" doesn't exist!");
-        }
-        return new LinkResponse(0L, removeLinkRequest.link());
+        UserLinks removedUserLinks = userLinksServiceJdbc.remove(tgChatId, removeLinkRequest.link());
+        return new LinkResponse(removedUserLinks.userChatId(), removedUserLinks.linkUrl());
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)

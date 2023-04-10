@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.exceptionHandler.ErrorMessage;
+import org.example.jdbc.TelegramChatServiceJdbc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,17 +12,20 @@ import java.util.*;
 @RestController
 @RequestMapping("/tg-chat")
 public class TelegramChatController {
-    private final Set<Long> chatIds = new HashSet<>();
+    private final TelegramChatServiceJdbc telegramChatServiceJdbc;
+
+    public TelegramChatController(TelegramChatServiceJdbc telegramChatServiceJdbc) {
+        this.telegramChatServiceJdbc = telegramChatServiceJdbc;
+    }
+
     @PostMapping("{id}")
     public void registerChat(@PathVariable Long id){
-        chatIds.add(id);
+        telegramChatServiceJdbc.register(id);
     }
 
     @DeleteMapping("{id}")
     public void deleteChat(@PathVariable Long id){
-        if(!chatIds.remove(id)){
-            throw new IllegalArgumentException("Chat with id = "+id+" is not exist!");
-        }
+        telegramChatServiceJdbc.unregister(id);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
