@@ -16,6 +16,8 @@ public class ClientConfiguration {
         HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builder()
                 .clientAdapter(WebClientAdapter.forClient(
                         WebClient.builder()
+                                .codecs(configurer -> configurer.defaultCodecs()
+                                        .maxInMemorySize(1 << 20))
                                 .baseUrl("https://api.github.com/")
                                 .build()
                 ))
@@ -38,7 +40,7 @@ public class ClientConfiguration {
         HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builder()
                 .clientAdapter(WebClientAdapter.forClient(
                         WebClient.builder()
-                                .baseUrl("localhost://8081")
+                                .baseUrl("http://localhost:8081/")
                                 .build()
                 ))
                 .build();

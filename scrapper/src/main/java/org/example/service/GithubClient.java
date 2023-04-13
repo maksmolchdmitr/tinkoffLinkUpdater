@@ -7,6 +7,6 @@ import org.springframework.web.service.annotation.HttpExchange;
 
 @HttpExchange(url = "repos/{owner}/{repo}", accept = "application/vnd.github+json")
 public interface GithubClient {
-    @GetExchange
-    GithubRepositoryResponse getRepository(@PathVariable String owner, @PathVariable String repo);
+    @GetExchange("events")
+    GithubRepositoryResponse.Event[] getEvents(@PathVariable String owner, @PathVariable String repo);
 }

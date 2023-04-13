@@ -1,6 +1,14 @@
 package org.example.dto;
 
-import java.time.OffsetDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record GithubRepositoryResponse(OffsetDateTime updated_at) {
+import java.sql.Timestamp;
+
+public record GithubRepositoryResponse(
+) {
+    public record Event(
+            @JsonProperty("created_at")
+            Timestamp createdAt
+    ){
+    }
 }
