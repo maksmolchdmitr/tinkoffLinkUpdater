@@ -44,6 +44,13 @@ public class LinkDao {
         )=1
         """, Map.of("url", url));
     }
+    public void update(Link link){
+        jdbcTemplate.update("""
+                update link_table
+                set last_update=:lastUpdate
+                where url=:url
+                """, new BeanPropertySqlParameterSource(link));
+    }
     public List<Link> findAll(){
         return jdbcTemplate.query("select * from link_table", linkRowMapper);
     }

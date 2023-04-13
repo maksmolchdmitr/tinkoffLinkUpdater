@@ -39,7 +39,27 @@ public class UserLinksServiceJdbc implements UserLinksService {
     }
 
     @Override
+    public void removeLinkByUrl(String url) {
+        linkDao.remove(url);
+    }
+
+    @Override
     public List<UserLinks> findByChatId(long chatId) {
         return userLinksDao.findByChatId(chatId);
+    }
+
+    @Override
+    public List<UserLinks> findByUrl(String url) {
+        return userLinksDao.findByUrl(url);
+    }
+
+    @Override
+    public List<Link> findAllLinks() {
+        return linkDao.findAll();
+    }
+
+    @Override
+    public void updateLink(Link link) {
+        linkDao.update(link);
     }
 }

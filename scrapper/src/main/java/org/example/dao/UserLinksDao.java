@@ -80,4 +80,8 @@ public class UserLinksDao {
         return jdbcTemplate.query("select * from user_links_table where user_chat_id=:chatId",
                 Map.of("chatId", chatId), userLinksRowMapper);
     }
+    public List<UserLinks> findByUrl(String url){
+        return jdbcTemplate.query("select * from user_links_table where link_url=:url",
+                Map.of("url", url), userLinksRowMapper);
+    }
 }

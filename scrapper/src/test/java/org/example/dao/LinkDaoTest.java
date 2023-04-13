@@ -115,4 +115,16 @@ class LinkDaoTest extends IntegrationEnvironment {
         linkDao.removeIfWithOneUser("link3");
         assertTrue(linkDao.findByUrl("link3").isEmpty());
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    void updateLinkTest(){
+        linkDao.add(new Link("link", new Timestamp(0)));
+        linkDao.update(new Link("link", new Timestamp(1)));
+        assertEquals(linkDao.findByUrl("link")
+                .orElseThrow()
+                .lastUpdate(),
+                new Timestamp(1));
+    }
 }
