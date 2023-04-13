@@ -54,6 +54,11 @@ public class UserLinksServiceJdbc implements UserLinksService {
     }
 
     @Override
+    public List<Link> findLinksSortedByLastUpdate() {
+        return linkDao.findAllSortedByLastUpdate();
+    }
+
+    @Override
     public List<Link> findAllLinks() {
         return linkDao.findAll();
     }

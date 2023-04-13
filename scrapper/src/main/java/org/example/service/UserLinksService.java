@@ -11,6 +11,8 @@ public interface UserLinksService {
     void removeLinkByUrl(String url);
     List<UserLinks> findByChatId(long chatId);
     List<UserLinks> findByUrl(String url);
+    List<Link> findLinksSortedByLastUpdate();
     List<Link> findAllLinks();
+
     void updateLink(Link link);
 }

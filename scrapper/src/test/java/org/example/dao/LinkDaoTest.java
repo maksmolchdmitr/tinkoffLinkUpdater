@@ -127,4 +127,25 @@ class LinkDaoTest extends IntegrationEnvironment {
                 .lastUpdate(),
                 new Timestamp(1));
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    void getSortedListOfLinksTest(){
+        Link link4 = linkDao.add(new Link("link4", new Timestamp(3)));
+        Link link2 = linkDao.add(new Link("link2", new Timestamp(1)));
+        Link link5 = linkDao.add(new Link("link5", new Timestamp(4)));
+        Link link3 = linkDao.add(new Link("link3", new Timestamp(2)));
+        Link link1 = linkDao.add(new Link("link1", new Timestamp(0)));
+        Link link = linkDao.add(new Link("link"));
+        assertArrayEquals(linkDao.findAllSortedByLastUpdate().toArray(),
+                new Object[]{
+                        link1,
+                        link2,
+                        link3,
+                        link4,
+                        link5,
+                        link
+                });
+    }
 }

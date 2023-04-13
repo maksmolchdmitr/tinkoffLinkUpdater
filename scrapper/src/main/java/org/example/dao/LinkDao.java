@@ -63,4 +63,11 @@ public class LinkDao {
                 )
         );
     }
+
+    public List<Link> findAllSortedByLastUpdate() {
+        return jdbcTemplate.query("""
+            select * from link_table
+            order by last_update
+            """, linkRowMapper);
+    }
 }
