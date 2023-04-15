@@ -148,4 +148,16 @@ class LinkDaoTest extends IntegrationEnvironment {
                         link
                 });
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    void updateWithIsGithubLink() {
+        Link link = linkDao.add(new Link("link"));
+        assertFalse(link.isGithubLink());
+        linkDao.setIsGithubLink(new Link("link", true));
+        assertTrue(linkDao.findByUrl("link")
+                .orElseThrow()
+                .isGithubLink());
+    }
 }

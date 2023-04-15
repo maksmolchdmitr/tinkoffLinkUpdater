@@ -1,7 +1,9 @@
 package org.example.jdbc;
 
+import org.example.dao.GithubLinkDao;
 import org.example.dao.LinkDao;
 import org.example.dao.UserLinksDao;
+import org.example.model.GithubLink;
 import org.example.model.Link;
 import org.example.model.UserLinks;
 import org.example.service.UserLinksService;
@@ -15,10 +17,12 @@ import java.util.List;
 public class UserLinksServiceJdbc implements UserLinksService {
     private final UserLinksDao userLinksDao;
     private final LinkDao linkDao;
+    private final GithubLinkDao githubLinkDao;
 
-    public UserLinksServiceJdbc(UserLinksDao userLinksDao, LinkDao linkDao) {
+    public UserLinksServiceJdbc(UserLinksDao userLinksDao, LinkDao linkDao, GithubLinkDao githubLinkDao) {
         this.userLinksDao = userLinksDao;
         this.linkDao = linkDao;
+        this.githubLinkDao = githubLinkDao;
     }
 
     @Override
@@ -59,6 +63,13 @@ public class UserLinksServiceJdbc implements UserLinksService {
     }
 
     @Override
+    @Transactional
+    public boolean isGithubLink(String url) {
+        return linkDao.findByUrl(url).orElseThrow()
+                .isGithubLink();
+    }
+
+    @Override
     public List<Link> findAllLinks() {
         return linkDao.findAll();
     }
@@ -66,5 +77,14 @@ public class UserLinksServiceJdbc implements UserLinksService {
     @Override
     public void updateLink(Link link) {
         linkDao.update(link);
+    }
+
+    @Override
+    @Transactional
+    public void setGithubLinkBranchCount(Link link, int branchCount) {
+        GithubLink newGithubLink = new GithubLink(link.url(), branchCount);
+        githubLinkDao.add(newGithubLink);
+        githubLinkDao.update(newGithubLink);
+        linkDao.setIsGithubLink(link);
     }
 }
