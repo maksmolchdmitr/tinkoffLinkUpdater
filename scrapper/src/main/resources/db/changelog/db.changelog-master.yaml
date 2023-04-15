@@ -1,7 +1,7 @@
 databaseChangeLog:
   - include:
-      file: db/migrations/user-schema.sql
+      file: db/migrations/hw5/user-schema.sql
   - include:
-      file: db/migrations/link-schema.sql
+      file: db/migrations/hw5/link-schema.sql
   - include:
-      file: db/migrations/user_links-schema.sql
+      file: db/migrations/hw5/user_links-schema.sql
