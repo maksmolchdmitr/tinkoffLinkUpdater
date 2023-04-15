@@ -37,27 +37,18 @@ public class LinkUpdaterScheduler {
     }
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
     public void update(){
-        log.info("update...");
+        log.info("Update links...");
         userLinksService.findLinksSortedByLastUpdate()
                 .forEach(this::handleLink);
     }
 
     private void handleLink(Link link) {
-        log.info("handle link %s".formatted(link.url()));
-        Optional<URL> optionalURL = getLinkUrl(link.url());
-        optionalURL.ifPresentOrElse(
-                url ->{
-                    Optional<Timestamp> oldTimeOptional = getOldTime(link);
-                    oldTimeOptional.ifPresentOrElse(
-                            oldTime ->{
-                                Timestamp newTime = getAndSendMessageWithNewTime(url, oldTime);
-                                log.info("New time is %s".formatted(newTime.toString()));
-                                userLinksService.updateLink(new Link(link.url(), newTime, true));
-                            },
-                            ()-> userLinksService.updateLink(new Link(link.url(), new Timestamp(System.currentTimeMillis()), true)));
-                },
-                () -> sendErrorMessageAndRemoveLink(link)
-        );
+        log.info("Handle link %s".formatted(link.url()));
+        URL url = getLinkUrl(link.url()).orElseThrow();
+        getOldTime(link).ifPresentOrElse(
+                oldTime -> userLinksService.updateLink(new Link(link.url(),
+                        getAndSendMessageWithNewTime(url, oldTime))),
+                ()->userLinksService.updateLink(new Link(link.url(), new Timestamp(System.currentTimeMillis()))));
     }
 
     private void sendMessage(String url, @NotNull Timestamp oldTime, @NotNull Timestamp newTime, String extraMessage) {
@@ -77,7 +68,7 @@ public class LinkUpdaterScheduler {
     }
 
     private Timestamp getAndSendMessageWithNewTime(URL url, Timestamp oldTime) {
-        Timestamp newTime;
+        Timestamp newTime = new Timestamp(System.currentTimeMillis());
         switch (UrlParser.parse(url)){
             case GithubLinkParser.GithubData githubData ->{
                 GithubRepositoryResponse.Event event = githubClient.getEvents(githubData.getUserAndRepository().user(),
@@ -87,6 +78,7 @@ public class LinkUpdaterScheduler {
                 int branchCount = githubClient.getBranches(githubData.getUserAndRepository().user(),
                         githubData.getUserAndRepository().repository()).length;
                 if(branchCount>userLinksService.getBranchCount(url.toString())){
+                    userLinksService.setGithubLinkBranchCount(url.toString(), branchCount);
                     newTime = new Timestamp(System.currentTimeMillis());
                     String branchName = githubClient.getBranches(githubData.getUserAndRepository().user(),
                             githubData.getUserAndRepository().repository())[0].name();
@@ -106,7 +98,7 @@ public class LinkUpdaterScheduler {
             }
             case UrlParser.EmptyData ignored -> {}
         }
-        return new Timestamp(System.currentTimeMillis());
+        return newTime;
     }
 
     private Optional<Timestamp> getOldTime(Link link) {
@@ -119,19 +111,5 @@ public class LinkUpdaterScheduler {
         }catch (MalformedURLException e){
             return Optional.empty();
         }
-    }
-
-    private void sendErrorMessageAndRemoveLink(Link link) {
-        botHttpClient.sendUpdates(new UpdateResponse(
-                0,
-                link.url(),
-                """
-                        It's not a link therefore it has been deleted!
-                        """,
-                userLinksService.findByUrl(link.url())
-                        .stream().map(UserLinks::userChatId)
-                        .collect(Collectors.toList())
-        ));
-        userLinksService.removeLinkByUrl(link.url());
     }
 }

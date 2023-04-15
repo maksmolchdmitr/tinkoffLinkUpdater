@@ -17,5 +17,5 @@ public interface UserLinksService {
 
     List<Link> findAllLinks();
     void updateLink(Link link);
-    void setGithubLinkBranchCount(Link link, int branchCount);
+    void setGithubLinkBranchCount(String url, int branchCount);
 }

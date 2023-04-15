@@ -87,10 +87,9 @@ public class UserLinksServiceJdbc implements UserLinksService {
 
     @Override
     @Transactional
-    public void setGithubLinkBranchCount(Link link, int branchCount) {
-        GithubLink newGithubLink = new GithubLink(link.url(), branchCount);
+    public void setGithubLinkBranchCount(String url, int branchCount) {
+        GithubLink newGithubLink = new GithubLink(url, branchCount);
         githubLinkDao.add(newGithubLink);
         githubLinkDao.update(newGithubLink);
-        linkDao.setIsGithubLink(link);
     }
 }
