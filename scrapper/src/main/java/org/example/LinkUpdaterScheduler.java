@@ -36,23 +36,18 @@ public class LinkUpdaterScheduler {
     }
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
     public void update(){
+        log.info("Update links...");
         userLinksService.findLinksSortedByLastUpdate()
                 .forEach(this::handleLink);
     }
 
     private void handleLink(Link link) {
-        log.info("handle link %s".formatted(link.url()));
-        Optional<URL> optionalURL = getLinkUrl(link.url());
-        optionalURL.ifPresentOrElse(
-                url ->{
-                    Optional<Timestamp> oldTimeOptional = getOldTime(link);
-                    Timestamp newTime = getNewTime(url);
-                    userLinksService.updateLink(new Link(link.url(), newTime));
-                    oldTimeOptional.ifPresent(
-                            oldTime -> sendMessage(link.url(), oldTime, newTime));
-                },
-                () -> sendErrorMessageAndRemoveLink(link)
-        );
+        log.info("Handle link %s".formatted(link.url()));
+        Timestamp newTime = getNewTime(
+                getLinkUrl(link.url()).orElseThrow());
+        userLinksService.updateLink(new Link(link.url(), newTime));
+        Optional.ofNullable(link.lastUpdate())
+                .ifPresent(oldTime -> sendMessage(link.url(), oldTime, newTime));
     }
 
     private void sendMessage(String url, @NotNull Timestamp oldTime, @NotNull Timestamp newTime) {
@@ -69,11 +64,6 @@ public class LinkUpdaterScheduler {
                         .map(UserLinks::userChatId).collect(Collectors.toList())
                 ));
     }
-
-    private Optional<Timestamp> getOldTime(Link link) {
-        return Optional.ofNullable(link.lastUpdate());
-    }
-
     private Timestamp getNewTime(URL url) {
         switch (UrlParser.parse(url)){
             case GithubLinkParser.GithubData githubData ->{
@@ -96,19 +86,5 @@ public class LinkUpdaterScheduler {
         }catch (MalformedURLException e){
             return Optional.empty();
         }
-    }
-
-    private void sendErrorMessageAndRemoveLink(Link link) {
-        botHttpClient.sendUpdates(new UpdateResponse(
-                0,
-                link.url(),
-                """
-                        It's not a link therefore it has been deleted!
-                        """,
-                userLinksService.findByUrl(link.url())
-                        .stream().map(UserLinks::userChatId)
-                        .collect(Collectors.toList())
-        ));
-        userLinksService.removeLinkByUrl(link.url());
     }
 }

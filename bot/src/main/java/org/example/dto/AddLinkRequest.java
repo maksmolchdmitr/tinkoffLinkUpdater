@@ -2,7 +2,9 @@ package org.example.dto;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.net.URL;
+
 public record AddLinkRequest(
-        @NotNull String link
+        @NotNull URL link
 ) {
 }
