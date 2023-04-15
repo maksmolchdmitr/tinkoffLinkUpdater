@@ -63,6 +63,11 @@ public class UserLinksServiceJdbc implements UserLinksService {
     }
 
     @Override
+    public int getBranchCount(String url) {
+        return githubLinkDao.findByUrl(url).branchCount();
+    }
+
+    @Override
     @Transactional
     public boolean isGithubLink(String url) {
         return linkDao.findByUrl(url).orElseThrow()
@@ -77,6 +82,7 @@ public class UserLinksServiceJdbc implements UserLinksService {
     @Override
     public void updateLink(Link link) {
         linkDao.update(link);
+        linkDao.setIsGithubLink(link);
     }
 
     @Override

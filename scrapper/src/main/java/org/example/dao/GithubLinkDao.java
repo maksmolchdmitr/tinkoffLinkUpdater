@@ -1,12 +1,14 @@
 package org.example.dao;
 
 import org.example.model.GithubLink;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class GithubLinkDao {
@@ -36,9 +38,12 @@ public class GithubLinkDao {
                 """, new BeanPropertySqlParameterSource(githubLink));
     }
     public GithubLink findByUrl(String url){
-        return jdbcTemplate.queryForObject(
-                "select * from github_link_table where link_url=:linkUrl",
-                Map.of("linkUrl", url),
-                githubLinkRowMapper);
+        Optional<GithubLink> optionalGithubLink = Optional.ofNullable(DataAccessUtils.singleResult(
+                jdbcTemplate.query(
+                        "select * from github_link_table where link_url=:linkUrl",
+                        Map.of("linkUrl", url),
+                        githubLinkRowMapper)
+        ));
+        return optionalGithubLink.orElse(new GithubLink(url, 0));
     }
 }

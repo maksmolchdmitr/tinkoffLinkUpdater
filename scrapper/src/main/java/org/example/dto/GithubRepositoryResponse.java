@@ -26,5 +26,11 @@ public record GithubRepositoryResponse(
             @JsonProperty("created_at")
             Timestamp createdAt
     ){
+        @Override
+        public String toString() {
+            return "Event{" +
+                    "createdAt=" + createdAt +
+                    '}';
+        }
     }
 }
