@@ -12,6 +12,7 @@ import org.example.service.BotHttpClient;
 import org.example.service.GithubClient;
 import org.example.service.StackoverflowClient;
 import org.example.service.UserLinksService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,8 @@ public class LinkUpdaterScheduler {
     private final GithubClient githubClient;
     private final StackoverflowClient stackoverflowClient;
     private final BotHttpClient botHttpClient;
-    public LinkUpdaterScheduler(UserLinksService userLinksService, GithubClient githubClient, StackoverflowClient stackoverflowClient, BotHttpClient botHttpClient) {
+    public LinkUpdaterScheduler(@Qualifier("userLinksServiceJooq") UserLinksService userLinksService,
+                                GithubClient githubClient, StackoverflowClient stackoverflowClient, BotHttpClient botHttpClient) {
         this.userLinksService = userLinksService;
         this.githubClient = githubClient;
         this.stackoverflowClient = stackoverflowClient;
