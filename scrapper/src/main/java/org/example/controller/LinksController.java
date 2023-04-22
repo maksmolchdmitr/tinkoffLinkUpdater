@@ -21,7 +21,7 @@ import java.util.List;
 public class LinksController {
     private final UserLinksService userLinksService;
 
-    public LinksController(@Qualifier("userLinksServiceJooq") UserLinksService userLinksService) {
+    public LinksController(@Qualifier("userLinkServiceJpa") UserLinksService userLinksService) {
         this.userLinksService = userLinksService;
     }
 

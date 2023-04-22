@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class TelegramChatController {
     private final TelegramChatService telegramChatService;
 
-    public TelegramChatController(@Qualifier("telegramChatServiceJooq") TelegramChatService telegramChatService) {
+    public TelegramChatController(@Qualifier("telegramChatServiceJpa") TelegramChatService telegramChatService) {
         this.telegramChatService = telegramChatService;
     }
 

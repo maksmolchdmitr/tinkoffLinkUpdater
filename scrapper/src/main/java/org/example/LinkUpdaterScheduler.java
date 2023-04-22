@@ -32,7 +32,7 @@ public class LinkUpdaterScheduler {
     private final GithubClient githubClient;
     private final StackoverflowClient stackoverflowClient;
     private final BotHttpClient botHttpClient;
-    public LinkUpdaterScheduler(@Qualifier("userLinksServiceJooq") UserLinksService userLinksService,
+    public LinkUpdaterScheduler(@Qualifier("userLinkServiceJpa") UserLinksService userLinksService,
                                 GithubClient githubClient, StackoverflowClient stackoverflowClient, BotHttpClient botHttpClient) {
         this.userLinksService = userLinksService;
         this.githubClient = githubClient;
