@@ -3,10 +3,8 @@ package org.example.jpa;
 import org.example.jpa.entity.User;
 import org.example.jpa.repository.UserRepository;
 import org.example.service.TelegramChatService;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 public class TelegramChatServiceJpa implements TelegramChatService {
     private final UserRepository userRepository;
 

@@ -8,12 +8,10 @@ import org.example.model.Link;
 import org.example.model.UserLinks;
 import org.example.service.UserLinksService;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
 public class UserLinksServiceJdbc implements UserLinksService {
     private final UserLinksDao userLinksDao;
     private final LinkDao linkDao;

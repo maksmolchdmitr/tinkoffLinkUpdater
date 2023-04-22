@@ -5,14 +5,12 @@ import org.example.model.Link;
 import org.example.model.UserLinks;
 import org.example.service.UserLinksService;
 import org.jooq.DSLContext;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
 import static org.example.jooq.Tables.*;
 
-@Service
 public class UserLinksServiceJooq implements UserLinksService {
     private final DSLContext DSL;
 

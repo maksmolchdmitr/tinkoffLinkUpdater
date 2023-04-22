@@ -10,7 +10,11 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public record ApplicationConfig(
         @NotNull String test,
-        @NotNull Scheduler scheduler
+        @NotNull Scheduler scheduler,
+        @NotNull AccessType databaseAccessType
 ) {
     record Scheduler(Duration interval){}
+    public enum AccessType{
+        JDBC, JPA, JOOQ
+    }
 }

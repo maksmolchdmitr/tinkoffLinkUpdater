@@ -2,6 +2,7 @@ app:
   test: "Benedict Cumberbatch"
   scheduler:
     interval: 120000
+  databaseAccessType: jdbc
 
 springdoc:
   swagger-ui:

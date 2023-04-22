@@ -6,9 +6,7 @@ import org.example.dao.UserLinksDao;
 import org.example.model.User;
 import org.example.model.UserLinks;
 import org.example.service.TelegramChatService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class TelegramChatServiceJdbc implements TelegramChatService {
     private final UserDao userDao;
     private final UserLinksDao userLinksDao;

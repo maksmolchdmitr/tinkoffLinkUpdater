@@ -9,12 +9,10 @@ import org.example.jpa.repository.UserRepository;
 import org.example.model.Link;
 import org.example.model.UserLinks;
 import org.example.service.UserLinksService;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
 public class UserLinkServiceJpa implements UserLinksService {
     private final LinkRepository linkRepository;
     private final UserRepository userRepository;
