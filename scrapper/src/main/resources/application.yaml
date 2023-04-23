@@ -1,8 +1,17 @@
 app:
   test: "Benedict Cumberbatch"
   scheduler:
-    interval: 5000
+    interval: 120000
 
 springdoc:
   swagger-ui:
     path: "/swagger-ui"
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/scrapper
+    username: postgres
+    password: postgres
+  liquibase:
+    enabled: true

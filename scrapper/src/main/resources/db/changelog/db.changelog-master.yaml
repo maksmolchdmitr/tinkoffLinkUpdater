@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/migrations/hw5/user-schema.sql
+  - include:
+      file: db/migrations/hw5/link-schema.sql
+  - include:
+      file: db/migrations/hw5/user_links-schema.sql

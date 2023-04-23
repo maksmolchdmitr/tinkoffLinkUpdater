@@ -43,3 +43,5 @@ build/
 /.idea/.gitignore
 /.idea/uiDesigner.xml
 /.idea/inspectionProfiles/Project_Default.xml
+/.idea/sqldialects.xml
+/.idea/dataSources.xml

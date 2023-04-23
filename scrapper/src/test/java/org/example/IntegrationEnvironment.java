@@ -1,3 +1,5 @@
+package org.example;
+
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
@@ -34,7 +36,7 @@ public abstract class IntegrationEnvironment {
 
     private static void runMigrations() {
         var changelogPath = new File(".").toPath().toAbsolutePath().
-                getParent().getParent().resolve("migrations");
+                getParent().getParent().resolve("db/migrations");
         try(var conn = DriverManager
                 .getConnection(IntegrationEnvironment.DATABASE_CONTAINER.getJdbcUrl(),
                         IntegrationEnvironment.DATABASE_CONTAINER.getUsername(),

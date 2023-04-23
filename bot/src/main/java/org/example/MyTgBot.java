@@ -7,13 +7,18 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendChatAction;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.example.configuration.ApplicationConfig;
+import org.example.dto.AddLinkRequest;
+import org.example.dto.RemoveLinkRequest;
+import org.example.dto.UpdateRequest;
+import org.example.service.ScrapperClient;
+import org.example.service.UpdateRequestHandler;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 @Component
-public class MyTgBot extends TelegramLongPollingBot{
+public class MyTgBot extends TelegramLongPollingBot implements UpdateRequestHandler {
     private static final String NEW_LINK_PRINT_COMMAND = "Print new link";
     private static final String LINK_REMOVE_COMMAND = "Print link you want to remove";
     private static final String HELP_MESSAGE = """
@@ -22,9 +27,11 @@ public class MyTgBot extends TelegramLongPollingBot{
                                 /track -- начать отслеживание ссылки
                                 /untrack -- прекратить отслеживание ссылки
                                 /list -- показать список отслеживаемых ссылок""";
-    List<String> links = new ArrayList<>();
-    public MyTgBot(ApplicationConfig applicationConfig) {
+    private static final String NOT_LINK_ERROR_MESSAGE = "This is not url link!";
+    private final ScrapperClient scrapperClient;
+    public MyTgBot(ApplicationConfig applicationConfig, ScrapperClient scrapperClient) {
         super(applicationConfig.botConfig().token());
+        this.scrapperClient = scrapperClient;
     }
 
     @Override
@@ -59,8 +66,8 @@ public class MyTgBot extends TelegramLongPollingBot{
     protected void handleList(long chatId) {
         bot.execute(
                 new SendMessage(chatId, "*Links:*\n"
-                        +links.stream()
-                        .map(s -> "\"`"+s+"`\"")
+                        +scrapperClient.getLinks(chatId).links().stream()
+                        .map(s -> "\"`"+s.url()+"`\"")
                         .reduce((s, s2) -> s+"\n"+s2)
                         .orElse("There is not links!"))
                         .disableWebPagePreview(true)
@@ -84,22 +91,62 @@ public class MyTgBot extends TelegramLongPollingBot{
     }
 
     protected void handleStart(long chatId) {
+        scrapperClient.registerUser(chatId);
         sendMessage(chatId, "You was registered!");
     }
 
     protected void handleRepliedMessage(Update update, long chatId) {
         switch (update.message().replyToMessage().text()){
-            case NEW_LINK_PRINT_COMMAND -> {
-                links.add(update.message().text());
-                sendMessage(chatId, "Link "+ update.message().text()+" was successfully added!");
-            }
-            case LINK_REMOVE_COMMAND -> {
-                if(links.remove(update.message().text())){
-                    sendMessage(chatId, "Link "+ update.message().text()+" was successfully removed!");
-                }else {
-                    sendMessage(chatId, "Link \""+ update.message().text()+"\" was not found!");
-                }
-            }
+            case NEW_LINK_PRINT_COMMAND -> tryToAddLink(update, chatId);
+            case LINK_REMOVE_COMMAND -> tryToRemoveLink(update, chatId);
+        }
+    }
+
+    private void tryToRemoveLink(Update update, long chatId) {
+        try {
+            removeLink(update, chatId);
+        } catch (MalformedURLException e) {
+            sendMessage(chatId, NOT_LINK_ERROR_MESSAGE);
+        }
+    }
+
+    private void removeLink(Update update, long chatId) throws MalformedURLException {
+        if(scrapperClient.deleteLink(chatId, new RemoveLinkRequest(new URL(update.message().text())))!=null) {
+            sendMessage(chatId, "Link " + update.message().text() + " was successfully removed!");
+        }else {
+            sendMessage(chatId, "Link " + update.message().text() + " was not found or you haven't been registered!");
+            sendHelpText(chatId);
+        }
+    }
+
+    private void tryToAddLink(Update update, long chatId) {
+        try {
+            addLink(update, chatId);
+        } catch (MalformedURLException e) {
+            sendMessage(chatId, NOT_LINK_ERROR_MESSAGE);
+        }
+    }
+
+    private void addLink(Update update, long chatId) throws MalformedURLException {
+        if(scrapperClient.addLink(chatId, new AddLinkRequest(new URL(update.message().text())))!=null) {
+            sendMessage(chatId, "Link " + update.message().text() + " was successfully added!");
+        }else {
+            sendMessage(chatId, "You haven't been registered!");
+            sendHelpText(chatId);
+        }
+    }
+
+    @Override
+    public void handleUpdateRequest(UpdateRequest updateRequest) {
+        for(Long tgChatId:updateRequest.tgChatIds()){
+            sendMessage(tgChatId,
+                    String.format("""
+                    Link:
+                    %s
+                    was detected as updated!!!
+                    With description:
+                    %s
+                    """, updateRequest.url(), updateRequest.description()));
         }
     }
 }
