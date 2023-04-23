@@ -2,11 +2,9 @@ package org.example.jooq;
 
 import org.example.service.TelegramChatService;
 import org.jooq.DSLContext;
-import org.springframework.stereotype.Service;
 
-import static org.example.jooq.Tables.*;
+import static org.example.jooq.Tables.USER_TABLE;
 
-@Service
 public class TelegramChatServiceJooq implements TelegramChatService {
     private final DSLContext DSL;
 

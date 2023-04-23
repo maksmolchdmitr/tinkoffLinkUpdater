@@ -2,6 +2,7 @@ app:
   test: "Benedict Cumberbatch"
   scheduler:
     interval: 120000
+  databaseAccessType: jdbc
 
 springdoc:
   swagger-ui:
@@ -15,3 +16,13 @@ spring:
     password: postgres
   liquibase:
     enabled: true
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        jdbc:
+          batch_size: 50
+          fetch_size: 50
+        order_updates: true
+        order_inserts: true
+        format_sql: false

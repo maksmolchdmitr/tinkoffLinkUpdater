@@ -2,7 +2,6 @@ package org.example.controller;
 
 import org.example.exceptionHandler.ErrorMessage;
 import org.example.service.TelegramChatService;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,7 +14,7 @@ import java.util.Arrays;
 public class TelegramChatController {
     private final TelegramChatService telegramChatService;
 
-    public TelegramChatController(@Qualifier("telegramChatServiceJooq") TelegramChatService telegramChatService) {
+    public TelegramChatController(TelegramChatService telegramChatService) {
         this.telegramChatService = telegramChatService;
     }
 
