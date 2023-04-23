@@ -12,7 +12,10 @@ public interface UserLinksService {
     List<UserLinks> findByChatId(long chatId);
     List<UserLinks> findByUrl(String url);
     List<Link> findLinksSortedByLastUpdate();
-    List<Link> findAllLinks();
+    int getBranchCount(String url);
+    boolean isGithubLink(String url);
 
+    List<Link> findAllLinks();
     void updateLink(Link link);
+    void setGithubLinkBranchCount(String url, int branchCount);
 }

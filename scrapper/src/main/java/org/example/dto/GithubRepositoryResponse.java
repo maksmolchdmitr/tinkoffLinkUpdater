@@ -2,13 +2,35 @@ package org.example.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 
 public record GithubRepositoryResponse(
 ) {
+    public record CommitBody(
+            Commit commit
+    ){
+        public record Commit(
+                Author author,
+                String message
+        ){
+            public record Author(
+                    String name,
+                    ZonedDateTime date
+            ){}
+        }
+    }
+    public record Branch(
+            String name
+    ){}
     public record Event(
             @JsonProperty("created_at")
-            Timestamp createdAt
+            ZonedDateTime createdAt
     ){
+        @Override
+        public String toString() {
+            return "Event{" +
+                    "createdAt=" + createdAt +
+                    '}';
+        }
     }
 }

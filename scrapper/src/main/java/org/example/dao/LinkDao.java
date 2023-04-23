@@ -17,8 +17,10 @@ public class LinkDao {
         this.jdbcTemplate = jdbcTemplate;
     }
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final RowMapper<Link> linkRowMapper = (rs, rowNum) -> new Link(rs.getString("url"),
-            rs.getTimestamp("last_update"));
+    private final RowMapper<Link> linkRowMapper = (rs, rowNum) ->
+            new Link(rs.getString("url"),
+            rs.getTimestamp("last_update"),
+            rs.getBoolean("is_github_link"));
     public Link add(Link link){
         jdbcTemplate.update("""
                 insert into link_table(url, last_update)
@@ -48,6 +50,13 @@ public class LinkDao {
         jdbcTemplate.update("""
                 update link_table
                 set last_update=:lastUpdate
+                where url=:url
+                """, new BeanPropertySqlParameterSource(link));
+    }
+    public void setIsGithubLink(Link link){
+        jdbcTemplate.update("""
+                update link_table
+                set is_github_link=:isGithubLink
                 where url=:url
                 """, new BeanPropertySqlParameterSource(link));
     }

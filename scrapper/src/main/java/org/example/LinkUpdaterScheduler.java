@@ -12,14 +12,18 @@ import org.example.service.BotHttpClient;
 import org.example.service.GithubClient;
 import org.example.service.StackoverflowClient;
 import org.example.service.UserLinksService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.example.dto.GithubRepositoryResponse.*;
 
 @Slf4j
 @Component
@@ -28,7 +32,8 @@ public class LinkUpdaterScheduler {
     private final GithubClient githubClient;
     private final StackoverflowClient stackoverflowClient;
     private final BotHttpClient botHttpClient;
-    public LinkUpdaterScheduler(UserLinksService userLinksService, GithubClient githubClient, StackoverflowClient stackoverflowClient, BotHttpClient botHttpClient) {
+    public LinkUpdaterScheduler(@Qualifier("userLinksServiceJooq") UserLinksService userLinksService,
+                                GithubClient githubClient, StackoverflowClient stackoverflowClient, BotHttpClient botHttpClient) {
         this.userLinksService = userLinksService;
         this.githubClient = githubClient;
         this.stackoverflowClient = stackoverflowClient;
@@ -43,41 +48,92 @@ public class LinkUpdaterScheduler {
 
     private void handleLink(Link link) {
         log.info("Handle link %s".formatted(link.url()));
-        Timestamp newTime = getNewTime(
-                getLinkUrl(link.url()).orElseThrow());
-        userLinksService.updateLink(new Link(link.url(), newTime));
-        Optional.ofNullable(link.lastUpdate())
-                .ifPresent(oldTime -> sendMessage(link.url(), oldTime, newTime));
+        URL url = getLinkUrl(link.url()).orElseThrow();
+        getOldTime(link).ifPresentOrElse(
+                oldTime -> userLinksService.updateLink(new Link(link.url(),
+                        getAndSendMessageWithNewTime(url, oldTime)
+                                .orElse(new Timestamp(System.currentTimeMillis())))),
+                ()->userLinksService.updateLink(new Link(link.url(), new Timestamp(System.currentTimeMillis()))));
     }
 
-    private void sendMessage(String url, @NotNull Timestamp oldTime, @NotNull Timestamp newTime) {
-        log.info("send message with old time: \n%s and new time: \n%s"
-                .formatted(oldTime, newTime));
+    private void sendMessage(String url, @NotNull Timestamp oldTime, @NotNull Timestamp newTime, String extraMessage) {
         if(!newTime.after(oldTime)) return;
         botHttpClient.sendUpdates(new UpdateResponse(
                 0,
                 url,
                 """
                         link was detected as updated link!
-                        """,
+                        %s
+                        """.formatted(extraMessage),
                 userLinksService.findByUrl(url).stream()
                         .map(UserLinks::userChatId).collect(Collectors.toList())
                 ));
     }
-    private Timestamp getNewTime(URL url) {
+
+    private Optional<Timestamp> getAndSendMessageWithNewTime(URL url, Timestamp oldTime) {
         switch (UrlParser.parse(url)){
-            case GithubLinkParser.GithubData githubData ->{
-                return githubClient.getEvents(githubData.getUserAndRepository().user(),
-                        githubData.getUserAndRepository().repository())
-                        [0].createdAt();
+            case GithubLinkParser.GithubData githubData -> {
+                String userName = githubData.getUserAndRepository().user();
+                String repoName = githubData.getUserAndRepository().repository();
+                boolean newEvent = checkNewEvent(url, oldTime, userName, repoName);
+                boolean newBranch = checkNewBranch(url, oldTime, userName, repoName);
+                boolean newCommit = checkNewCommit(url, oldTime, userName, repoName);
+                if(newCommit||newBranch||newEvent)
+                    return Optional.of(new Timestamp(System.currentTimeMillis()));
             }
             case StackoverflowLinkParser.StackoverflowData stackoverflowData ->{
-                return Timestamp.from(stackoverflowClient.getQuestion(stackoverflowData.getQuestionId())
-                        .items().get(0).lastActivityDate().toInstant());
+                Timestamp newTime = Timestamp.from(stackoverflowClient.getAnswer(stackoverflowData.getQuestionId())
+                        .answers().get(0).lastActivityDate().toInstant());
+                sendMessage(url.toString(), oldTime, newTime, "new answer to question!");
+                return Optional.of(newTime);
             }
             case UrlParser.EmptyData ignored -> {}
         }
-        return new Timestamp(System.currentTimeMillis());
+        return Optional.empty();
+    }
+
+    private boolean checkNewCommit(URL url, Timestamp oldTime, String userName, String repoName) {
+        Timestamp newTime;
+        CommitBody[] commitBodies =
+                githubClient.getCommits(userName, repoName);
+        newTime = Timestamp.from(commitBodies[0].commit().author().date().toInstant());
+        sendMessage(url.toString(), oldTime, newTime, """
+                new commit was created with name: "%s"
+                """.formatted(commitBodies[0].commit().message()));
+        return newTime.after(oldTime);
+    }
+
+    private boolean checkNewBranch(URL url, Timestamp oldTime, String userName, String repoName) {
+        Branch[] branches =
+                githubClient.getBranches(userName, repoName);
+        if (branches.length > userLinksService.getBranchCount(url.toString())) {
+            userLinksService.setGithubLinkBranchCount(url.toString(), branches.length);
+            Timestamp newTime = new Timestamp(System.currentTimeMillis());
+            sendMessage(url.toString(), oldTime,
+                    newTime, """
+                    new branch was added with branch names:
+                    %s
+                    """.formatted(Arrays.stream(branches)
+                    .map(branch -> branch.name().formatted("\"%s\""))
+                                    .reduce("%s\n%s"::formatted)
+                                    .orElse("Empty list of branches")
+                    )
+            );
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkNewEvent(URL url, Timestamp oldTime, String userName, String repoName) {
+        Event lastEvent = githubClient.getEvents(userName, repoName)[0];
+        Timestamp newTime = Timestamp.from(lastEvent.createdAt().toInstant());
+        sendMessage(url.toString(), oldTime, newTime,
+                "new some event %s".formatted(lastEvent.toString()));
+        return newTime.after(oldTime);
+    }
+
+    private Optional<Timestamp> getOldTime(Link link) {
+        return Optional.ofNullable(link.lastUpdate());
     }
 
     private Optional<URL> getLinkUrl(String url) {

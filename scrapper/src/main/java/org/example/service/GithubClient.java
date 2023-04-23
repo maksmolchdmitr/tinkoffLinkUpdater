@@ -9,4 +9,8 @@ import org.springframework.web.service.annotation.HttpExchange;
 public interface GithubClient {
     @GetExchange("events")
     GithubRepositoryResponse.Event[] getEvents(@PathVariable String owner, @PathVariable String repo);
+    @GetExchange("commits")
+    GithubRepositoryResponse.CommitBody[] getCommits(@PathVariable String owner, @PathVariable String repo);
+    @GetExchange("branches")
+    GithubRepositoryResponse.Branch[] getBranches(@PathVariable String owner, @PathVariable String repo);
 }

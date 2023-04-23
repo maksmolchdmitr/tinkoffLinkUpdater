@@ -10,4 +10,6 @@
     <include file="hw5/user-schema.sql"/>
     <include file="hw5/link-schema.sql"/>
     <include file="hw5/user_links-schema.sql"/>
+
+    <includeAll path="hw6"/>
 </databaseChangeLog>

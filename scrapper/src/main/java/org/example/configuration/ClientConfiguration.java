@@ -1,6 +1,9 @@
 package org.example.configuration;
 
 import org.example.service.BotHttpClient;
+import org.jooq.conf.RenderQuotedNames;
+import org.jooq.impl.DefaultConfiguration;
+import org.springframework.boot.autoconfigure.jooq.DefaultConfigurationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -45,5 +48,13 @@ public class ClientConfiguration {
                 ))
                 .build();
         return httpServiceProxyFactory.createClient(BotHttpClient.class);
+    }
+
+    @Bean
+    public DefaultConfigurationCustomizer postgresJooqCustomizer() {
+        return (DefaultConfiguration c) -> c.settings()
+                .withRenderSchema(false)
+                .withRenderFormatted(true)
+                .withRenderQuotedNames(RenderQuotedNames.NEVER);
     }
 }

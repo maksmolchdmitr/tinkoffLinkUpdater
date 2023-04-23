@@ -1,31 +1,32 @@
 package org.example.controller;
 
 import org.example.exceptionHandler.ErrorMessage;
-import org.example.jdbc.TelegramChatServiceJdbc;
+import org.example.service.TelegramChatService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/tg-chat")
 public class TelegramChatController {
-    private final TelegramChatServiceJdbc telegramChatServiceJdbc;
+    private final TelegramChatService telegramChatService;
 
-    public TelegramChatController(TelegramChatServiceJdbc telegramChatServiceJdbc) {
-        this.telegramChatServiceJdbc = telegramChatServiceJdbc;
+    public TelegramChatController(@Qualifier("telegramChatServiceJooq") TelegramChatService telegramChatService) {
+        this.telegramChatService = telegramChatService;
     }
 
     @PostMapping("{id}")
     public void registerChat(@PathVariable Long id){
-        telegramChatServiceJdbc.register(id);
+        telegramChatService.register(id);
     }
 
     @DeleteMapping("{id}")
     public void deleteChat(@PathVariable Long id){
-        telegramChatServiceJdbc.unregister(id);
+        telegramChatService.unregister(id);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
