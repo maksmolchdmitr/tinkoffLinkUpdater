@@ -34,14 +34,14 @@ public class LinksController {
 
     @PostMapping
     public LinkResponse addLinkTracking(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody AddLinkRequest addLinkRequest){
-        UserLinks userLinks = userLinksService.add(tgChatId, addLinkRequest.link());
+        UserLinks userLinks = userLinksService.add(tgChatId, String.valueOf(addLinkRequest.link()));
         if(userLinks==null) return null;
         return new LinkResponse(userLinks.userChatId(), userLinks.linkUrl());
     }
 
     @DeleteMapping
     public LinkResponse deleteLinkTracking(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody RemoveLinkRequest removeLinkRequest){
-        UserLinks removedUserLinks = userLinksService.remove(tgChatId, removeLinkRequest.link());
+        UserLinks removedUserLinks = userLinksService.remove(tgChatId, String.valueOf(removeLinkRequest.link()));
         if(removedUserLinks==null) return null;
         return new LinkResponse(removedUserLinks.userChatId(), removedUserLinks.linkUrl());
     }
