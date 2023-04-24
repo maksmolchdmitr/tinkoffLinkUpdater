@@ -1,4 +1,4 @@
-package org.example.configuration;
+package org.example.configuration.useQueue;
 
 import org.example.service.BotHttpClient;
 import org.example.service.UpdateSender;

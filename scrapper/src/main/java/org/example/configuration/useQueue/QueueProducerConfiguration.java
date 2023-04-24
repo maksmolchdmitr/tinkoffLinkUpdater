@@ -1,5 +1,6 @@
-package org.example.configuration;
+package org.example.configuration.useQueue;
 
+import org.example.configuration.ApplicationConfig;
 import org.example.rabbitMQ.ScrapperQueueProducer;
 import org.example.service.UpdateSender;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
