@@ -11,10 +11,16 @@ import java.time.Duration;
 public record ApplicationConfig(
         @NotNull String test,
         @NotNull Scheduler scheduler,
-        @NotNull AccessType databaseAccessType
+        @NotNull AccessType databaseAccessType,
+        @NotNull RabbitMQConfig rabbitMQConfig
 ) {
     record Scheduler(Duration interval){}
     public enum AccessType{
         JDBC, JPA, JOOQ
     }
+    record RabbitMQConfig(
+            String queueName,
+            String exchangeName,
+            String routingKey
+    ){}
 }
