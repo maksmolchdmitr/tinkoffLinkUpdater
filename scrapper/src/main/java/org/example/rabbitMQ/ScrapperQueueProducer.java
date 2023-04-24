@@ -1,12 +1,13 @@
-package org.example.service;
+package org.example.rabbitMQ;
 
 import org.example.configuration.ApplicationConfig;
 import org.example.dto.UpdateResponse;
+import org.example.service.UpdateSender;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ScrapperQueueProducer {
+public class ScrapperQueueProducer implements UpdateSender {
     private final RabbitTemplate rabbitTemplate;
     private final ApplicationConfig appConfig;
     public ScrapperQueueProducer(RabbitTemplate rabbitTemplate, ApplicationConfig appConfig) {
@@ -14,7 +15,8 @@ public class ScrapperQueueProducer {
         this.appConfig = appConfig;
     }
 
-    public void send(UpdateResponse updateResponse){
+    @Override
+    public void sendUpdates(UpdateResponse updateResponse){
         rabbitTemplate.convertAndSend(appConfig.rabbitMQConfig().routingKey(), updateResponse);
     }
 }
