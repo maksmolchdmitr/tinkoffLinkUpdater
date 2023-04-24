@@ -6,6 +6,7 @@ app:
     token: ${BOT_TOKEN}
   rabbitMQConfig:
     queueName: "scrapperQueue"
+    DLQListener: true
 
 springdoc:
   swagger-ui:
@@ -13,3 +14,11 @@ springdoc:
 
 server:
   port: 8081
+
+spring:
+  rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 1

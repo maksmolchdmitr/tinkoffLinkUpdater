@@ -13,5 +13,8 @@ public record ApplicationConfig(
         @NotNull boolean useQueue
 ) {
     public record BotConfig(String name, String token){}
-    public record RabbitMQConfig(String queueName){}
+    public record RabbitMQConfig(
+            String queueName,
+            boolean DLQListener
+    ){}
 }

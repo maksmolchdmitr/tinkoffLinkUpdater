@@ -1,9 +1,6 @@
 package org.example.configuration;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +15,11 @@ public class RabbitMQConfiguration {
 
     @Bean
     Queue queue(){
-        return new Queue(appConfig.rabbitMQConfig().queueName());
+        return QueueBuilder
+                .durable(appConfig.rabbitMQConfig().queueName())
+                .withArgument("x-dead-letter-exchange", appConfig.rabbitMQConfig().queueName()+".dlx")
+                .withArgument("x-dead-letter-routing-key", appConfig.rabbitMQConfig().queueName()+".dlq")
+                .build();
     }
     @Bean
     DirectExchange directExchange(){

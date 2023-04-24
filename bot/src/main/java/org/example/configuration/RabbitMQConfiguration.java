@@ -1,6 +1,10 @@
 package org.example.configuration;
 
 import org.example.dto.UpdateRequest;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.ClassMapper;
 import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -13,6 +17,27 @@ import java.util.Map;
 
 @Configuration
 public class RabbitMQConfiguration {
+    private final ApplicationConfig appConfig;
+    public RabbitMQConfiguration(ApplicationConfig appConfig) {
+        this.appConfig = appConfig;
+    }
+
+    @Bean
+    DirectExchange deadLetterExchange(){
+        return new DirectExchange(appConfig.rabbitMQConfig().queueName()+".dlx");
+    }
+    @Bean
+    Queue deadLetterQueue(){
+        return new Queue(appConfig.rabbitMQConfig().queueName()+".dlq");
+    }
+    @Bean
+    Binding deadLetterBinding(){
+        return BindingBuilder
+                .bind(deadLetterQueue())
+                .to(deadLetterExchange())
+                .withQueueName();
+    }
+
     @Bean
     public ClassMapper classMapper() {
         Map<String, Class<?>> mappings = new HashMap<>();
@@ -23,7 +48,6 @@ public class RabbitMQConfiguration {
         classMapper.setIdClassMapping(mappings);
         return classMapper;
     }
-
     @Bean
     public MessageConverter jsonMessageConverter(ClassMapper classMapper) {
         Jackson2JsonMessageConverter jsonConverter = new Jackson2JsonMessageConverter();
