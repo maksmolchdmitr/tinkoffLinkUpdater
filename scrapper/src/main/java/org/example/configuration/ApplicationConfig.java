@@ -12,7 +12,8 @@ public record ApplicationConfig(
         @NotNull String test,
         @NotNull Scheduler scheduler,
         @NotNull AccessType databaseAccessType,
-        @NotNull RabbitMQConfig rabbitMQConfig
+        @NotNull RabbitMQConfig rabbitMQConfig,
+        @NotNull boolean useQueue
 ) {
     public record Scheduler(Duration interval){}
     public enum AccessType{
