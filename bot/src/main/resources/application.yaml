@@ -1,8 +1,11 @@
 app:
+  useQueue: true
   test: "Ryan Gosling"
   botConfig:
     name: "TinkoffLinkUpdaterBot"
     token: ${BOT_TOKEN}
+  rabbitMQConfig:
+    queueName: "scrapperQueue"
 
 springdoc:
   swagger-ui:
