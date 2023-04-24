@@ -14,11 +14,11 @@ public record ApplicationConfig(
         @NotNull AccessType databaseAccessType,
         @NotNull RabbitMQConfig rabbitMQConfig
 ) {
-    record Scheduler(Duration interval){}
+    public record Scheduler(Duration interval){}
     public enum AccessType{
         JDBC, JPA, JOOQ
     }
-    record RabbitMQConfig(
+    public record RabbitMQConfig(
             String queueName,
             String exchangeName,
             String routingKey
