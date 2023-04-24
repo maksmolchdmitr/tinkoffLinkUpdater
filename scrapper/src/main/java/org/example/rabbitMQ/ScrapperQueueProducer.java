@@ -17,6 +17,6 @@ public class ScrapperQueueProducer implements UpdateSender {
 
     @Override
     public void sendUpdates(UpdateResponse updateResponse){
-        rabbitTemplate.convertAndSend(appConfig.rabbitMQConfig().routingKey(), updateResponse);
+        rabbitTemplate.convertAndSend(appConfig.rabbitMQConfig().queueName(), updateResponse);
     }
 }
