@@ -21,3 +21,5 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn package -pl bot -am
+      - name: Build image
+        run: docker build --build-arg bot_token=${{ secrets.TINKOFF_TELEGRAM_BOT_TOKEN }} -t bot_image .
