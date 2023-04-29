@@ -41,3 +41,6 @@ jobs:
           push: true
           tags: ghcr.io/maksmolchdmitr/tinkofflinkupdater/bot:latest
           build-args: bot_token=${{ secrets.TINKOFF_TELEGRAM_BOT_TOKEN }}
+        env:
+          DOCKER_USERNAME: ${{ github.actor }}
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
