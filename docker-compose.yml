@@ -31,8 +31,17 @@ services:
     networks:
       - backend
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
 volumes:
   database:
+  rabbitmq:
 
 networks:
   backend:

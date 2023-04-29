@@ -3,6 +3,11 @@ app:
   scheduler:
     interval: 120000
   databaseAccessType: jdbc
+  rabbitMQConfig:
+    queueName: "scrapperQueue"
+    exchangeName: "scrapperExchange"
+    routingKey: "scrapperRouting"
+  useQueue: true
 
 springdoc:
   swagger-ui:

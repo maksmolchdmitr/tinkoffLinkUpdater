@@ -8,10 +8,7 @@ import org.example.model.UserLinks;
 import org.example.realization.GithubLinkParser;
 import org.example.realization.StackoverflowLinkParser;
 import org.example.realization.UrlParser;
-import org.example.service.BotHttpClient;
-import org.example.service.GithubClient;
-import org.example.service.StackoverflowClient;
-import org.example.service.UserLinksService;
+import org.example.service.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,13 +27,13 @@ public class LinkUpdaterScheduler {
     private final UserLinksService userLinksService;
     private final GithubClient githubClient;
     private final StackoverflowClient stackoverflowClient;
-    private final BotHttpClient botHttpClient;
+    private final UpdateSender updateSender;
     public LinkUpdaterScheduler(UserLinksService userLinksService,
-                                GithubClient githubClient, StackoverflowClient stackoverflowClient, BotHttpClient botHttpClient) {
+                                GithubClient githubClient, StackoverflowClient stackoverflowClient, UpdateSender updateSender) {
         this.userLinksService = userLinksService;
         this.githubClient = githubClient;
         this.stackoverflowClient = stackoverflowClient;
-        this.botHttpClient = botHttpClient;
+        this.updateSender = updateSender;
     }
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
     public void update(){
@@ -57,7 +54,7 @@ public class LinkUpdaterScheduler {
 
     private void sendMessage(String url, @NotNull Timestamp oldTime, @NotNull Timestamp newTime, String extraMessage) {
         if(!newTime.after(oldTime)) return;
-        botHttpClient.sendUpdates(new UpdateResponse(
+        updateSender.sendUpdates(new UpdateResponse(
                 0,
                 url,
                 """
@@ -66,7 +63,7 @@ public class LinkUpdaterScheduler {
                         """.formatted(extraMessage),
                 userLinksService.findByUrl(url).stream()
                         .map(UserLinks::userChatId).collect(Collectors.toList())
-                ));
+        ));
     }
 
     private Optional<Timestamp> getAndSendMessageWithNewTime(URL url, Timestamp oldTime) {

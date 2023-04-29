@@ -1,4 +1,4 @@
-package org.example.configuration;
+package org.example.configuration.databaseAccessType;
 
 import org.example.jooq.TelegramChatServiceJooq;
 import org.example.jooq.UserLinksServiceJooq;
