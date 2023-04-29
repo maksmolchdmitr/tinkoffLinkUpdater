@@ -39,5 +39,5 @@ jobs:
         with:
           context: bot
           push: true
-          tags: ghcr.io/maksmolchdmitr/tinkoffLinkUpdater/bot:latest
+          tags: ghcr.io/maksmolchdmitr/tinkofflinkupdater/bot:latest
           build-args: bot_token=${{ secrets.TINKOFF_TELEGRAM_BOT_TOKEN }}
