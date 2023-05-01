@@ -54,4 +54,4 @@ jobs:
           build-args: bot_token=${{ secrets.TINKOFF_TELEGRAM_BOT_TOKEN }}
           context: bot
           push: true
-          tags: maksmolchdmitr/bot:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
