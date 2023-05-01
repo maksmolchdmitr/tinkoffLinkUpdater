@@ -54,3 +54,8 @@ jobs:
           context: bot
           push: true
           tags: maksmolchdmitr/bot_image:latest
+      
+      - name: Push to Github Container Registry
+        run: |
+          docker tag bot_image ghcr.io/maksmolchdmitr/bot_image:latest
+          docker push ghcr.io/maksmolchdmitr/bot_image:latest
