@@ -34,5 +34,5 @@ jobs:
           docker tag bot_image maksmolchdmitr/bot_image:latest
           docker push maksmolchdmitr/bot_image:latest
           echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin ghcr.io
-          docker tag bot_image ghcr.io/maksimmolchanov/bot_image:latest
-          docker push ghcr.io/maksimmolchanov/bot_image:latest
+          docker tag bot_image ghcr.io/maksmolchdmitr/bot_image:latest
+          docker push ghcr.io/maksmolchdmitr/bot_image:latest
