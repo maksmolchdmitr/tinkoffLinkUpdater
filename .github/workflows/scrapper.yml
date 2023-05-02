@@ -22,5 +22,12 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn package -pl scrapper -am
-      - name: Build image
-        run: docker build -t scrapper_image scrapper
+      - name: Build and push scrapper image to DockerHub and Github Container Registry
+        run: |
+          docker build -t scrapper_image scrapper
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker tag scrapper_image maksmolchdmitr/scrapper_image:latest
+          docker push maksmolchdmitr/scrapper_image:latest
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin ghcr.io
+          docker tag scrapper_image ghcr.io/maksmolchdmitr/scrapper_image:latest
+          docker push ghcr.io/maksmolchdmitr/scrapper_image:latest
