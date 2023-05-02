@@ -15,11 +15,16 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "app", name = "databaseAccessType", havingValue = "jpa")
 public class JpaAccessConfiguration {
     @Bean
-    TelegramChatService telegramChatService(UserRepository userRepository){
+    TelegramChatService telegramChatService(UserRepository userRepository) {
         return new TelegramChatServiceJpa(userRepository);
     }
+
     @Bean
-    UserLinksService userLinksService(LinkRepository linkRepository, UserRepository userRepository, GithubLinkRepository githubLinkRepository){
+    UserLinksService userLinksService(
+            LinkRepository linkRepository,
+            UserRepository userRepository,
+            GithubLinkRepository githubLinkRepository
+    ) {
         return new UserLinkServiceJpa(linkRepository, userRepository, githubLinkRepository);
     }
 }

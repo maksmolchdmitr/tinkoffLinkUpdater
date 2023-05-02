@@ -28,15 +28,21 @@ public class LinkUpdaterScheduler {
     private final GithubClient githubClient;
     private final StackoverflowClient stackoverflowClient;
     private final UpdateSender updateSender;
-    public LinkUpdaterScheduler(UserLinksService userLinksService,
-                                GithubClient githubClient, StackoverflowClient stackoverflowClient, UpdateSender updateSender) {
+
+    public LinkUpdaterScheduler(
+            UserLinksService userLinksService,
+            GithubClient githubClient,
+            StackoverflowClient stackoverflowClient,
+            UpdateSender updateSender
+    ) {
         this.userLinksService = userLinksService;
         this.githubClient = githubClient;
         this.stackoverflowClient = stackoverflowClient;
         this.updateSender = updateSender;
     }
+
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
-    public void update(){
+    public void update() {
         log.info("Update links...");
         userLinksService.findLinksSortedByLastUpdate()
                 .forEach(this::handleLink);
@@ -49,11 +55,11 @@ public class LinkUpdaterScheduler {
                 oldTime -> userLinksService.updateLink(new Link(link.url(),
                         getAndSendMessageWithNewTime(url, oldTime)
                                 .orElse(new Timestamp(System.currentTimeMillis())))),
-                ()->userLinksService.updateLink(new Link(link.url(), new Timestamp(System.currentTimeMillis()))));
+                () -> userLinksService.updateLink(new Link(link.url(), new Timestamp(System.currentTimeMillis()))));
     }
 
     private void sendMessage(String url, @NotNull Timestamp oldTime, @NotNull Timestamp newTime, String extraMessage) {
-        if(!newTime.after(oldTime)) return;
+        if (!newTime.after(oldTime)) return;
         updateSender.sendUpdates(new UpdateResponse(
                 0,
                 url,
@@ -67,23 +73,24 @@ public class LinkUpdaterScheduler {
     }
 
     private Optional<Timestamp> getAndSendMessageWithNewTime(URL url, Timestamp oldTime) {
-        switch (UrlParser.parse(url)){
+        switch (UrlParser.parse(url)) {
             case GithubLinkParser.GithubData githubData -> {
                 String userName = githubData.getUserAndRepository().user();
                 String repoName = githubData.getUserAndRepository().repository();
                 boolean newEvent = checkNewEvent(url, oldTime, userName, repoName);
                 boolean newBranch = checkNewBranch(url, oldTime, userName, repoName);
                 boolean newCommit = checkNewCommit(url, oldTime, userName, repoName);
-                if(newCommit||newBranch||newEvent)
+                if (newCommit || newBranch || newEvent)
                     return Optional.of(new Timestamp(System.currentTimeMillis()));
             }
-            case StackoverflowLinkParser.StackoverflowData stackoverflowData ->{
+            case StackoverflowLinkParser.StackoverflowData stackoverflowData -> {
                 Timestamp newTime = Timestamp.from(stackoverflowClient.getAnswer(stackoverflowData.getQuestionId())
                         .answers().get(0).lastActivityDate().toInstant());
                 sendMessage(url.toString(), oldTime, newTime, "new answer to question!");
                 return Optional.of(newTime);
             }
-            case UrlParser.EmptyData ignored -> {}
+            case UrlParser.EmptyData ignored -> {
+            }
         }
         return Optional.empty();
     }
@@ -107,12 +114,12 @@ public class LinkUpdaterScheduler {
             Timestamp newTime = new Timestamp(System.currentTimeMillis());
             sendMessage(url.toString(), oldTime,
                     newTime, """
-                    new branch was added with branch names:
-                    %s
-                    """.formatted(Arrays.stream(branches)
-                    .map(branch -> branch.name().formatted("\"%s\""))
-                                    .reduce("%s\n%s"::formatted)
-                                    .orElse("Empty list of branches")
+                            new branch was added with branch names:
+                            %s
+                            """.formatted(Arrays.stream(branches)
+                            .map(branch -> branch.name().formatted("\"%s\""))
+                            .reduce("%s\n%s"::formatted)
+                            .orElse("Empty list of branches")
                     )
             );
             return true;
@@ -133,9 +140,9 @@ public class LinkUpdaterScheduler {
     }
 
     private Optional<URL> getLinkUrl(String url) {
-        try{
+        try {
             return Optional.of(new URL(url));
-        }catch (MalformedURLException e){
+        } catch (MalformedURLException e) {
             return Optional.empty();
         }
     }

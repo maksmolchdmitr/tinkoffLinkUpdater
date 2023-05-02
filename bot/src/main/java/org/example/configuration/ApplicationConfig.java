@@ -15,6 +15,6 @@ public record ApplicationConfig(
     public record BotConfig(String name, String token){}
     public record RabbitMQConfig(
             String queueName,
-            boolean DLQListener
+            boolean dlqListener
     ){}
 }

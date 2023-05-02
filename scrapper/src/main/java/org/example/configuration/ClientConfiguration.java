@@ -14,21 +14,24 @@ import org.example.service.StackoverflowClient;
 
 @Configuration
 public class ClientConfiguration {
+    private final static int MEGABYTE = 1048576;
+
     @Bean
-    GithubClient getGithubClient(){
+    GithubClient getGithubClient() {
         HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builder()
                 .clientAdapter(WebClientAdapter.forClient(
                         WebClient.builder()
                                 .codecs(configurer -> configurer.defaultCodecs()
-                                        .maxInMemorySize(1 << 20))
+                                        .maxInMemorySize(MEGABYTE))
                                 .baseUrl("https://api.github.com/")
                                 .build()
                 ))
                 .build();
         return httpServiceProxyFactory.createClient(GithubClient.class);
     }
+
     @Bean
-    StackoverflowClient stackoverflowClient(){
+    StackoverflowClient stackoverflowClient() {
         HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builder()
                 .clientAdapter(WebClientAdapter.forClient(
                         WebClient.builder()
@@ -38,8 +41,9 @@ public class ClientConfiguration {
                 .build();
         return httpServiceProxyFactory.createClient(StackoverflowClient.class);
     }
+
     @Bean
-    BotHttpClient botHttpClient(){
+    BotHttpClient botHttpClient() {
         HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builder()
                 .clientAdapter(WebClientAdapter.forClient(
                         WebClient.builder()

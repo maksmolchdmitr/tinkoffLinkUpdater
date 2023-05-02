@@ -24,5 +24,8 @@ public interface ScrapperClient {
     @PostExchange("links")
     LinkResponse addLink(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody AddLinkRequest addLinkRequest);
     @DeleteExchange("links")
-    LinkResponse deleteLink(@RequestHeader("Tg-Chat-Id") Long tgChatId, @RequestBody RemoveLinkRequest removeLinkRequest);
+    LinkResponse deleteLink(
+            @RequestHeader("Tg-Chat-Id") Long tgChatId,
+            @RequestBody RemoveLinkRequest removeLinkRequest
+    );
 }

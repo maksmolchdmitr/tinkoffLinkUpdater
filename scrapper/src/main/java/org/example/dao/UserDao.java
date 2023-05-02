@@ -15,7 +15,8 @@ public class UserDao {
     public UserDao(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-    private final RowMapper<User> userRowMapper = (rs, rowNum) -> new User(rs.getLong("chat_id"), rs.getString("username"));
+    private final RowMapper<User> userRowMapper =
+            (rs, rowNum) -> new User(rs.getLong("chat_id"), rs.getString("username"));
 
     public User add(User user){
         jdbcTemplate.update("""

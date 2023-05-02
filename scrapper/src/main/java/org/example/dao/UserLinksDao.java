@@ -30,14 +30,16 @@ public class UserLinksDao {
                 """, new BeanPropertySqlParameterSource(userLinks));
         return Optional.ofNullable(
                 DataAccessUtils.singleResult(
-                        jdbcTemplate.query("select * from user_links_table where user_chat_id=:userChatId and link_url=:linkUrl",
+                        jdbcTemplate.query(
+                                "select * from user_links_table where user_chat_id=:userChatId and link_url=:linkUrl",
                                 new BeanPropertySqlParameterSource(userLinks),
                                 userLinksRowMapper)
                 )
         );
     }
     public UserLinks remove(UserLinks userLinks){
-        return jdbcTemplate.queryForObject("delete from user_links_table where user_chat_id=:userChatId and link_url=:linkUrl returning *",
+        return jdbcTemplate.queryForObject(
+                "delete from user_links_table where user_chat_id=:userChatId and link_url=:linkUrl returning *",
                 new BeanPropertySqlParameterSource(userLinks),
                 userLinksRowMapper);
     }
