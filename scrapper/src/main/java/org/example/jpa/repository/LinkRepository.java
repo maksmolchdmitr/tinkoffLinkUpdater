@@ -11,9 +11,16 @@ import java.util.List;
 
 public interface LinkRepository extends JpaRepository<LinkEntity, String> {
     @Modifying
-    @Query(value = "insert into link_table (url, last_update, is_github_link) values (:url, :lastUpdate, :isGithubLink) on conflict do nothing",
+    @Query(value = """
+            insert into link_table (url, last_update, is_github_link)
+            values (:url, :lastUpdate, :isGithubLink)
+            on conflict do nothing""",
     nativeQuery = true)
-    void saveOnConflictDoNothing(@Param("url") String url, @Param("lastUpdate")Timestamp lastUpdate, @Param("isGithubLink") boolean isGithubLink);
+    void saveOnConflictDoNothing(
+            @Param("url") String url,
+            @Param("lastUpdate")Timestamp lastUpdate,
+            @Param("isGithubLink") boolean isGithubLink
+    );
 
     List<LinkEntity> findAllByOrderByLastUpdate();
 }

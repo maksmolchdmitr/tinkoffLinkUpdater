@@ -1,0 +1,44 @@
+name: Bot maven CI
+
+on:
+  push:
+    paths:
+      - 'bot/**'
+      - '.github/workflows/bot.yml'
+  pull_request:
+    paths:
+      - 'bot/**'
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  checkstyle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check module bot on code style
+        run: mvn -pl bot -am checkstyle:check
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: Build with Maven
+        run: mvn package -pl bot -am
+
+      - name: Build and push bot_image to DockerHub and Github Container Registry
+        run: |
+          docker build --build-arg bot_token=${{ secrets.TINKOFF_TELEGRAM_BOT_TOKEN }} -t bot_image bot
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker tag bot_image maksmolchdmitr/bot_image:latest
+          docker push maksmolchdmitr/bot_image:latest
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin ghcr.io
+          docker tag bot_image ghcr.io/maksmolchdmitr/bot_image:latest
+          docker push ghcr.io/maksmolchdmitr/bot_image:latest

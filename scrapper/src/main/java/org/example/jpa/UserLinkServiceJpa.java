@@ -18,7 +18,11 @@ public class UserLinkServiceJpa implements UserLinksService {
     private final UserRepository userRepository;
     private final GithubLinkRepository githubLinkRepository;
 
-    public UserLinkServiceJpa(LinkRepository linkRepository, UserRepository userRepository, GithubLinkRepository githubLinkRepository) {
+    public UserLinkServiceJpa(
+            LinkRepository linkRepository,
+            UserRepository userRepository,
+            GithubLinkRepository githubLinkRepository
+    ) {
         this.linkRepository = linkRepository;
         this.userRepository = userRepository;
         this.githubLinkRepository = githubLinkRepository;
@@ -77,8 +81,11 @@ public class UserLinkServiceJpa implements UserLinksService {
     public List<Link> findLinksSortedByLastUpdate() {
         return linkRepository.findAllByOrderByLastUpdate()
                 .stream()
-                .map(linkEntity -> new Link(linkEntity.getUrl(), linkEntity.getLastUpdate(), linkEntity.getIsGithubLink()))
-                .toList();
+                .map(linkEntity -> new Link(
+                        linkEntity.getUrl(),
+                        linkEntity.getLastUpdate(),
+                        linkEntity.getIsGithubLink())
+                ).toList();
     }
 
     @Override
@@ -112,7 +119,7 @@ public class UserLinkServiceJpa implements UserLinksService {
         LinkEntity linkEntity = new LinkEntity();
         linkEntity.setUrl(link.url());
         linkEntity.setLastUpdate(link.lastUpdate());
-        if(link.isGithubLink()!=null)
+        if (link.isGithubLink() != null)
             linkEntity.setIsGithubLink(link.isGithubLink());
         linkRepository.save(linkEntity);
     }

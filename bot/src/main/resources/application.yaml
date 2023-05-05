@@ -6,7 +6,7 @@ app:
     token: ${BOT_TOKEN}
   rabbitMQConfig:
     queueName: "scrapperQueue"
-    DLQListener: true
+    dlqListener: true
 
 springdoc:
   swagger-ui:

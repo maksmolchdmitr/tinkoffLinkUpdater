@@ -25,7 +25,7 @@ public class TelegramChatServiceJdbc implements TelegramChatService {
 
     @Override
     public void unregister(long chatId) {
-        for(UserLinks userLinks:userLinksDao.findByChatId(chatId)){
+        for (UserLinks userLinks : userLinksDao.findByChatId(chatId)) {
             linkDao.removeIfWithOneUser(userLinks.linkUrl());
         }
         userDao.remove(chatId);

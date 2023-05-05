@@ -38,11 +38,15 @@ services:
     ports:
       - '5672:5672'
       - '15672:15672'
+    networks:
+      - queue_net
 
 volumes:
   database:
   rabbitmq:
 
 networks:
+  queue_net:
+    driver: bridge
   backend:
     driver: bridge
