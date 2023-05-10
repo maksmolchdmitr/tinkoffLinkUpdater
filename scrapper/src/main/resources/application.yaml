@@ -34,7 +34,7 @@ spring:
 
 management:
   server:
-    port: 8081
+    port: 9081
   endpoints:
     enabled-by-default: false
     web:
