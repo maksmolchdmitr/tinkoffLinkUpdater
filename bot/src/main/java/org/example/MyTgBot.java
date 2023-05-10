@@ -10,6 +10,7 @@ import org.example.configuration.ApplicationConfig;
 import org.example.dto.AddLinkRequest;
 import org.example.dto.RemoveLinkRequest;
 import org.example.dto.UpdateRequest;
+import org.example.metrics.BotMetricProcessor;
 import org.example.service.ScrapperClient;
 import org.example.service.UpdateRequestHandler;
 import org.springframework.stereotype.Component;
@@ -42,6 +43,7 @@ public class MyTgBot extends TelegramLongPollingBot implements UpdateRequestHand
             bot.execute(new SendChatAction(chatId, ChatAction.typing));
             handleUpdateMessageTextCommand(update, chatId);
         }
+        BotMetricProcessor.incrementHandledMessageCount();
     }
 
     protected void handleUpdateMessageTextCommand(Update update, long chatId) {
