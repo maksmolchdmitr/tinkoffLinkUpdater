@@ -3,6 +3,7 @@ package org.example;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.UpdateResponse;
+import org.example.metrics.ScrapperMetricProcessor;
 import org.example.model.Link;
 import org.example.model.UserLinks;
 import org.example.realization.GithubLinkParser;
@@ -56,6 +57,7 @@ public class LinkUpdaterScheduler {
                         getAndSendMessageWithNewTime(url, oldTime)
                                 .orElse(new Timestamp(System.currentTimeMillis())))),
                 () -> userLinksService.updateLink(new Link(link.url(), new Timestamp(System.currentTimeMillis()))));
+        ScrapperMetricProcessor.incrementHandledLinkCount();
     }
 
     private void sendMessage(String url, @NotNull Timestamp oldTime, @NotNull Timestamp newTime, String extraMessage) {

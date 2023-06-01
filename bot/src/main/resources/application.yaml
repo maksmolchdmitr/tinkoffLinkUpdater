@@ -22,3 +22,17 @@ spring:
         retry:
           enabled: true
           max-attempts: 1
+
+management:
+  server:
+    port: 9082
+  endpoints:
+    web:
+      base-path: /
+      path-mapping:
+        prometheus: metrics
+      exposure:
+        include: 'info, health, prometheus'
+  metrics:
+    tags:
+      application: ${spring.application.name}
